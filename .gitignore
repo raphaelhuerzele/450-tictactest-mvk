@@ -1,5 +1,6 @@
 .*
 !.git*
+!.dockerignore
 
 build/
 !**/src/main/**/build/
