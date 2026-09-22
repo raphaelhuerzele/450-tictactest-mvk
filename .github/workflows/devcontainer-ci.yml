@@ -1,0 +1,44 @@
+name: Dev Container
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - ".devcontainer/**"
+      - ".github/workflows/devcontainer-ci.yml"
+      - "build.gradle"
+      - "gradle/**"
+      - "gradlew"
+      - "gradlew.bat"
+      - "src/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-run-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build, use and push the Dev Container
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer
+          cacheFrom: ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer
+          push: always
+          runCmd: |
+            chmod +x ./gradlew
+            ./gradlew clean check --no-daemon

@@ -1,0 +1,17 @@
+{
+  "name": "TicTacTest Java 25",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-gradle"
+      ]
+    }
+  },
+  "postCreateCommand": "chmod +x ./gradlew && ./gradlew --version",
+  "remoteUser": "vscode"
+}
