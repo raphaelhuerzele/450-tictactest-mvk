@@ -63,6 +63,12 @@ Die Release-Pipeline setzt folgende Regeln technisch durch:
 
 Der Release-Tag ist die bewusste Freigabeentscheidung. Schreibrechte für Tags und `main` sollten deshalb nur Maintainer besitzen. Optional kann für besonders strenge Projekte zusätzlich ein geschütztes GitHub-Environment mit Reviewern vor den Release-Job geschaltet werden.
 
+## Repository-Voraussetzung für den automatischen Pull Request
+
+Der Release-Workflow benötigt `contents: write` und `pull-requests: write`. Zusätzlich muss unter **Settings → Actions → General → Workflow permissions** die GitHub-Einstellung **Allow GitHub Actions to create and approve pull requests** aktiviert sein. GitHub bündelt das Erstellen und Genehmigen von Pull Requests in einer gemeinsamen Repository-Einstellung; der Workflow dieses Projekts erstellt ausschließlich den Versions-PR und führt keine Review-Genehmigung aus.
+
+Ohne diese Einstellung kann das getestete Image zwar nach GHCR gepusht werden, GitHub blockiert danach jedoch die automatische PR-Erstellung. Die Einstellung muss deshalb vor dem ersten Dev-Container-Release bewusst durch einen Repository-Administrator aktiviert werden.
+
 ## Release durchführen
 
 Zuerst werden Änderungen an `.devcontainer/Dockerfile` und `.devcontainer/release/devcontainer.json` per Pull Request geprüft und nach `main` gemergt. Danach wird abhängig von der Änderung die nächste SemVer-Version gewählt.
