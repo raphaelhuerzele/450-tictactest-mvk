@@ -1,0 +1,113 @@
+name: Release Dev Container
+
+on:
+  push:
+    tags:
+      - "devcontainer-v*.*.*"
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+concurrency:
+  group: devcontainer-release
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate release tag
+        id: release
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if [[ ! "$tag" =~ ^devcontainer-v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Invalid release tag: $tag" >&2
+            exit 1
+          fi
+
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "The release tag must point to a commit on main." >&2
+            exit 1
+          fi
+
+          version="${tag#devcontainer-}"
+          numeric_version="${version#v}"
+          IFS='.' read -r major minor patch <<< "$numeric_version"
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "minor=v${major}.${minor}" >> "$GITHUB_OUTPUT"
+          echo "major=v${major}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Protect immutable version tag
+        shell: bash
+        run: |
+          image="${IMAGE_NAME}:${{ steps.release.outputs.version }}"
+          if docker manifest inspect "$image" >/dev/null 2>&1; then
+            echo "The immutable image tag already exists: $image" >&2
+            exit 1
+          fi
+
+      - name: Build, test and push released image
+        uses: devcontainers/ci@v0.3
+        with:
+          configFile: .devcontainer/release/devcontainer.json
+          imageName: ${{ env.IMAGE_NAME }}
+          imageTag: ${{ steps.release.outputs.version }},${{ steps.release.outputs.minor }},${{ steps.release.outputs.major }},stable
+          cacheFrom: ${{ env.IMAGE_NAME }}:stable
+          push: always
+          runCmd: |
+            chmod +x ./gradlew
+            ./gradlew clean check --no-daemon
+
+      - name: Create version update pull request
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          branch="chore/use-devcontainer-${VERSION}"
+
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git switch --create "$branch" origin/main
+          bash scripts/update-devcontainer-version.sh "$VERSION"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .devcontainer/devcontainer.json .devcontainer/VERSION
+          git commit -m "Use released Dev Container ${VERSION}"
+          git push --set-upstream origin "$branch"
+
+          body_file="${RUNNER_TEMP}/devcontainer-release-pr.md"
+          printf '%s\n' \
+            "The Dev Container ${VERSION} was built, tested and published successfully." \
+            "" \
+            "This updates CI and local development to the new immutable GHCR tag." \
+            "" \
+            "Image: \`${IMAGE_NAME}:${VERSION}\`" \
+            > "$body_file"
+
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "Use released Dev Container ${VERSION}" \
+            --body-file "$body_file"

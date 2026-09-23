@@ -107,6 +107,6 @@ Die Darstellung liegt in `pages/index.html` und zeigt:
 
 ## 10. Dev Container
 
-`.devcontainer/devcontainer.json` verwendet den Docker-Build aus `Dockerfile`. Der Workflow `.github/workflows/devcontainer-ci.yml` baut den Dev Container, führt `./gradlew clean check` darin aus und pusht das Image nach GitHub Container Registry.
+`.devcontainer/devcontainer.json` verweist auf einen exakt versionierten und freigegebenen Dev Container aus GHCR. Der Workflow `.github/workflows/devcontainer-ci.yml` führt `./gradlew clean check` in genau diesem Image aus und darf selbst keine Images veröffentlichen.
 
-Damit wird der Dev Container nicht nur definiert, sondern auch automatisiert verwendet und veröffentlicht.
+Releases werden ausschließlich durch `.github/workflows/devcontainer-release.yml` erzeugt. Der Workflow akzeptiert stabile SemVer-Tags, baut und testet das Image und pusht es erst danach nach GHCR. Anschließend erstellt er automatisch einen Pull Request, der CI und lokale Entwicklung auf die neue unveränderliche Version aktualisiert. Der Prozess ist in `DEVCONTAINER_RELEASE.md` dokumentiert.
