@@ -3,6 +3,9 @@ plugins {
     id 'jacoco'
 }
 
+group = 'ch.bbw.m450'
+version = providers.gradleProperty('releaseVersion').orElse('0.0.0-SNAPSHOT').get()
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
@@ -11,6 +14,13 @@ java {
 
 repositories {
     mavenCentral()
+}
+
+jar {
+    archiveBaseName = 'tictactest'
+    manifest {
+        attributes 'Main-Class': 'ch.bbw.m450.tictactoe.TicTacToeMain'
+    }
 }
 
 dependencies {

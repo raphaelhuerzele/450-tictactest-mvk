@@ -110,3 +110,7 @@ Die Darstellung liegt in `pages/index.html` und zeigt:
 `.devcontainer/devcontainer.json` verweist auf einen exakt versionierten und freigegebenen Dev Container aus GHCR. Der Workflow `.github/workflows/devcontainer-ci.yml` führt `./gradlew clean check` in genau diesem Image aus und darf selbst keine Images veröffentlichen.
 
 Releases werden ausschließlich durch `.github/workflows/devcontainer-release.yml` erzeugt. Der Workflow akzeptiert stabile SemVer-Tags, baut und testet das Image und pusht es erst danach nach GHCR. Anschließend erstellt er automatisch einen Pull Request, der CI und lokale Entwicklung auf die neue unveränderliche Version aktualisiert. Der Prozess ist in `DEVCONTAINER_RELEASE.md` dokumentiert.
+
+## 11. Anwendungs-Releases
+
+Der Workflow `.github/workflows/release.yml` startet nur bei stabilen Tags wie `v1.0.0`. Er wiederholt alle Tests und das Coverage-Gate, baut das ausführbare JAR, startet damit eine vollständige Beispielpartie und veröffentlicht es zusammen mit einer SHA-256-Prüfsumme als GitHub Release. Der reproduzierbare Ablauf und seine Voraussetzungen stehen in `RELEASE.md`; benutzerrelevante Änderungen stehen in `CHANGELOG.md`.

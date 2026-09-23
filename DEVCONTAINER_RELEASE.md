@@ -5,7 +5,7 @@
 Der Dev Container wird als versioniertes Image in der GitHub Container Registry (GHCR) veröffentlicht. CI und lokale Entwicklungsumgebungen verwenden immer dieselbe, zuletzt freigegebene Version.
 
 ```text
-Änderung an Dockerfile
+Änderung an .devcontainer/Dockerfile
         ↓
 Review und Merge nach main
         ↓
@@ -22,7 +22,7 @@ Merge → CI und lokale Dev Container verwenden die neue Version
 
 | Datei | Aufgabe |
 |---|---|
-| `Dockerfile` | Inhalt des Dev-Container-Images |
+| `.devcontainer/Dockerfile` | Alpine-basierter Inhalt des Dev-Container-Images |
 | `.devcontainer/release/devcontainer.json` | Build-Konfiguration für ein Release |
 | `.devcontainer/devcontainer.json` | Von VS Code und CI verwendete, freigegebene Image-Version |
 | `.devcontainer/VERSION` | Aktuell im Repository verwendete Version |
@@ -65,7 +65,7 @@ Der Release-Tag ist die bewusste Freigabeentscheidung. Schreibrechte für Tags u
 
 ## Release durchführen
 
-Zuerst werden Änderungen an `Dockerfile` und `.devcontainer/release/devcontainer.json` per Pull Request geprüft und nach `main` gemergt. Danach wird abhängig von der Änderung die nächste SemVer-Version gewählt.
+Zuerst werden Änderungen an `.devcontainer/Dockerfile` und `.devcontainer/release/devcontainer.json` per Pull Request geprüft und nach `main` gemergt. Danach wird abhängig von der Änderung die nächste SemVer-Version gewählt.
 
 Beispiel für Release `v1.0.1`:
 

@@ -1,7 +1,7 @@
 {
   "name": "TicTacTest Java 25",
   "build": {
-    "dockerfile": "../Dockerfile",
+    "dockerfile": "Dockerfile",
     "context": ".."
   },
   "customizations": {
