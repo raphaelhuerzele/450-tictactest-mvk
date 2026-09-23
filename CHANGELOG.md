@@ -2,6 +2,12 @@
 
 Alle relevanten Änderungen an TicTacTest werden in dieser Datei dokumentiert. Das Format orientiert sich an Keep a Changelog und verwendet Semantic Versioning.
 
+## [1.0.1] - 2026-09-23
+
+### Fixed
+
+- Tippfehler in der Eingabeaufforderung des menschlichen Spielers korrigiert.
+
 ## [1.0.0] - 2026-09-23
 
 ### Added
