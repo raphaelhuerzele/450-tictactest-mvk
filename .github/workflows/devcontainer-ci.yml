@@ -1,11 +1,20 @@
-name: Dev Container
+name: Dev Container CI
 
 on:
   push:
     branches: [main]
     paths:
-      - "Dockerfile"
-      - ".devcontainer/**"
+      - ".devcontainer/devcontainer.json"
+      - ".github/workflows/devcontainer-ci.yml"
+      - "build.gradle"
+      - "gradle/**"
+      - "gradlew"
+      - "gradlew.bat"
+      - "src/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".devcontainer/devcontainer.json"
       - ".github/workflows/devcontainer-ci.yml"
       - "build.gradle"
       - "gradle/**"
@@ -16,10 +25,10 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  packages: read
 
 jobs:
-  build-run-push:
+  test-in-released-devcontainer:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,12 +42,10 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build, use and push the Dev Container
+      - name: Test in released Dev Container
         uses: devcontainers/ci@v0.3
         with:
-          imageName: ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer
-          cacheFrom: ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer
-          push: always
+          push: never
           runCmd: |
             chmod +x ./gradlew
             ./gradlew clean check --no-daemon

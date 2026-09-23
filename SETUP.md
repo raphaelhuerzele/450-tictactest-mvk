@@ -8,7 +8,7 @@ Diese Dateien sind als Overlay für `raphaelhuerzele/450-tictactest-mvk` gedacht
 4. Lokal `./gradlew clean check` ausführen.
 5. Alles nach `main` pushen.
 6. GitHub Actions kontrollieren.
-7. Nach dem ersten Coverage-Pages-Lauf GitHub Pages auf `gh-pages` / `root` aktivieren.
-8. Unter Packages prüfen, ob das Dev-Container-Image veröffentlicht wurde.
+7. Prüfen, ob GitHub Pages von `gh-pages` / `root` veröffentlicht wird.
+8. Den Dev-Container-Releaseprozess aus `DEVCONTAINER_RELEASE.md` verwenden.
 
 Wichtig: `.gitignore` wurde absichtlich angepasst, damit `.devcontainer/**` nicht mehr von der bisherigen Regel `.*` verschluckt wird.

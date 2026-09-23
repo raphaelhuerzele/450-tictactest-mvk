@@ -27,7 +27,8 @@ Das Testkonzept ist in [`TESTKONZEPT.md`](TESTKONZEPT.md) dokumentiert.
 
 - `.github/workflows/ci.yml`: Tests + JaCoCo + 90-%-Quality-Gate + Coverage-Artifact.
 - `.github/workflows/coverage-pages.yml`: Coverage-Zeitreihe und vollständiger JaCoCo-Report auf `gh-pages`.
-- `.github/workflows/devcontainer-ci.yml`: Dev Container bauen, darin testen und als GHCR-Image pushen.
+- `.github/workflows/devcontainer-ci.yml`: Tests im zuletzt freigegebenen Dev-Container-Image.
+- `.github/workflows/devcontainer-release.yml`: Versionierten Dev Container bauen, testen, veröffentlichen und einen Update-PR erstellen.
 
 ## Dev Container
 
@@ -38,7 +39,7 @@ In VS Code:
 3. Repository öffnen.
 4. `Dev Containers: Reopen in Container` ausführen.
 
-Die Konfiguration liegt in `.devcontainer/devcontainer.json` und baut das Root-`Dockerfile`.
+Die Konfiguration liegt in `.devcontainer/devcontainer.json` und verwendet einen exakt versionierten, freigegebenen GHCR-Tag. Der vollständige Versionierungs- und Freigabeprozess ist in [`DEVCONTAINER_RELEASE.md`](DEVCONTAINER_RELEASE.md) dokumentiert.
 
 ## Coverage auf GitHub Pages
 
@@ -48,8 +49,8 @@ https://raphaelhuerzele.github.io/450-tictactest-mvk/
 
 ## Dev-Container-Image
 
-Der Workflow publiziert:
+Freigegebene Versionen werden unter folgendem Namen publiziert:
 
 ```text
-ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer:latest
+ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer:vMAJOR.MINOR.PATCH
 ```
