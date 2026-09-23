@@ -1,7 +1,7 @@
 {
   "name": "TicTacTest Java 25 release build",
   "build": {
-    "dockerfile": "../../Dockerfile",
+    "dockerfile": "../Dockerfile",
     "context": "../.."
   },
   "remoteUser": "vscode"

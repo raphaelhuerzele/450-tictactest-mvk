@@ -23,10 +23,20 @@ build/reports/jacoco/test/html/index.html
 
 Das Testkonzept ist in [`TESTKONZEPT.md`](TESTKONZEPT.md) dokumentiert.
 
+Der Anwendungs-Releaseprozess ist in [`RELEASE.md`](RELEASE.md) beschrieben; die Änderungen der Versionen stehen in [`CHANGELOG.md`](CHANGELOG.md).
+
+Ein ausführbares JAR kann lokal so erstellt und gestartet werden:
+
+```bash
+./gradlew clean check jar -PreleaseVersion=1.0.0
+java -jar build/libs/tictactest-1.0.0.jar
+```
+
 ## Automatisierung
 
 - `.github/workflows/ci.yml`: Tests + JaCoCo + 90-%-Quality-Gate + Coverage-Artifact.
 - `.github/workflows/coverage-pages.yml`: Coverage-Zeitreihe und vollständiger JaCoCo-Report auf `gh-pages`.
+- `.github/workflows/release.yml`: Getaggte Anwendungsversion testen und als GitHub Release mit ausführbarem JAR veröffentlichen.
 - `.github/workflows/devcontainer-ci.yml`: Tests im zuletzt freigegebenen Dev-Container-Image.
 - `.github/workflows/devcontainer-release.yml`: Versionierten Dev Container bauen, testen, veröffentlichen und einen Update-PR erstellen.
 
@@ -39,7 +49,7 @@ In VS Code:
 3. Repository öffnen.
 4. `Dev Containers: Reopen in Container` ausführen.
 
-Die Konfiguration liegt in `.devcontainer/devcontainer.json` und verwendet einen exakt versionierten, freigegebenen GHCR-Tag. Der vollständige Versionierungs- und Freigabeprozess ist in [`DEVCONTAINER_RELEASE.md`](DEVCONTAINER_RELEASE.md) dokumentiert.
+Die Container-Definition liegt in `.devcontainer/Dockerfile` und verwendet Alpine Linux, Java 25 sowie den Benutzer `vscode` mit UID/GID `1000:1000`. Nach dem ersten Release verwendet `.devcontainer/devcontainer.json` einen exakt versionierten, freigegebenen GHCR-Tag. Der vollständige Versionierungs- und Freigabeprozess ist in [`DEVCONTAINER_RELEASE.md`](DEVCONTAINER_RELEASE.md) dokumentiert.
 
 ## Coverage auf GitHub Pages
 
