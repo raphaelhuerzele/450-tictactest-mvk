@@ -40,21 +40,11 @@ In VS Code:
 
 Die Konfiguration liegt in `.devcontainer/devcontainer.json` und baut das Root-`Dockerfile`.
 
-## GitHub Pages einmalig aktivieren
+## Coverage auf GitHub Pages
 
-Nach dem ersten erfolgreichen Lauf von **Coverage time series** existiert der Branch `gh-pages`.
+Die GitHub-Pages-Veröffentlichung ist für den Branch `gh-pages` aktiviert. Der Workflow **Coverage time series** ergänzt bei jedem Push auf `main` die Messreihe und veröffentlicht den vollständigen JaCoCo-Report:
 
-In GitHub unter **Settings → Pages**:
-
-- Source: **Deploy from a branch**
-- Branch: **gh-pages**
-- Folder: **/(root)**
-
-Danach ist die Seite normalerweise unter folgender Adresse erreichbar:
-
-```text
 https://raphaelhuerzele.github.io/450-tictactest-mvk/
-```
 
 ## Dev-Container-Image
 
