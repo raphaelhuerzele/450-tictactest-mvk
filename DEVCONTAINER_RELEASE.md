@@ -71,6 +71,31 @@ Ohne diese Einstellung kann das getestete Image zwar nach GHCR gepusht werden, G
 
 ## Release durchführen
 
+### Erster Build und manueller Push (Auftrag 2)
+
+Vor dem ersten Release baut `.devcontainer/devcontainer.json` das Image lokal aus dem Dockerfile. `.devcontainer/VERSION` entsteht erst mit dem ersten Versions-PR. Die CI verwendet in dieser Startphase ebenfalls den lokalen Build; allein ein erfolgreicher Lauf von **Dev Container CI** belegt deshalb noch keine Veröffentlichung in GHCR.
+
+Der manuelle Build mit dem im Auftrag geforderten `latest`-Tag kann im Repository-Root in Bash ausgeführt werden:
+
+```bash
+image="ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer"
+docker build --file .devcontainer/Dockerfile --tag "${image}:latest" .
+docker run --rm "${image}:latest" sh -c 'java -version && test "$(id -u)" = 1000 && test "$(id -g)" = 1000'
+docker run --rm --mount "type=bind,source=$(pwd),target=/workspace" --workdir /workspace "${image}:latest" sh ./gradlew clean check --no-daemon
+docker login ghcr.io --username raphaelhuerzele
+docker push "${image}:latest"
+```
+
+Beim Login als Passwort einen Personal Access Token (classic) mit `write:packages` eingeben. Den Token nicht in Dateien oder Git speichern. GitHub beschreibt die Anmeldung in der [GHCR-Dokumentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic). Unter Windows können diese Befehle in WSL ausgeführt werden, während Docker Desktop mit Linux-Containern läuft.
+
+`latest` dient hier nur dem manuellen Übungsschritt. Für Auftrag 3 verwenden lokale Entwicklung und CI anschließend den vollständigen, freigegebenen Versionstag. Beim ersten automatisierten Release unten `devcontainer-v1.0.0` verwenden und danach den erzeugten Versions-PR prüfen und mergen. Erst dadurch wechseln beide Umgebungen vom lokalen Build zum Registry-Image.
+
+Der Wrapper wird im Container mit `sh ./gradlew` gestartet. Damit ist kein `chmod` auf dem eingebundenen Projektordner nötig; dies funktioniert auch bei Windows-Dateien, deren Berechtigungen der Container-Benutzer nicht ändern darf.
+
+GHCR-Pakete sind bei ihrer ersten Veröffentlichung standardmäßig privat. Für lokale Pulls entsprechend mit `read:packages` anmelden; für ein zweites Repository müsste dessen Actions-Zugriff auf das Paket separat gewährt werden. Siehe [Zugriff auf Container-Pakete](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-in-a-github-actions-workflow).
+
+### Automatisierter, versionierter Release (Auftrag 3)
+
 Zuerst werden Änderungen an `.devcontainer/Dockerfile` und `.devcontainer/release/devcontainer.json` per Pull Request geprüft und nach `main` gemergt. Danach wird abhängig von der Änderung die nächste SemVer-Version gewählt.
 
 Beispiel für Release `v1.0.1`:

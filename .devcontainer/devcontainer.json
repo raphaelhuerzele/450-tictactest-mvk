@@ -12,6 +12,6 @@
       ]
     }
   },
-  "postCreateCommand": "chmod +x ./gradlew && ./gradlew --version",
+  "postCreateCommand": "sh ./gradlew --version",
   "remoteUser": "vscode"
 }
