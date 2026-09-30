@@ -76,8 +76,7 @@ jobs:
           cacheFrom: ${{ env.IMAGE_NAME }}:stable
           push: always
           runCmd: |
-            chmod +x ./gradlew
-            ./gradlew clean check --no-daemon
+            sh ./gradlew clean check --no-daemon
 
       - name: Create version update pull request
         shell: bash
