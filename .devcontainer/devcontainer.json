@@ -1,9 +1,5 @@
 {
   "name": "TicTacTest Java 25",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -13,5 +9,6 @@
     }
   },
   "postCreateCommand": "sh ./gradlew --version",
-  "remoteUser": "vscode"
+  "remoteUser": "vscode",
+  "image": "ghcr.io/raphaelhuerzele/450-tictactest-mvk-devcontainer:v1.0.0"
 }
