@@ -6,6 +6,7 @@ Alle relevanten Änderungen an TicTacTest werden in dieser Datei dokumentiert. D
 
 ### Added
 
+- Automatisches SonarLint-Gate mit den offiziellen Java-Analyzern, allen aktiven Standardregeln und archiviertem Prüfbericht.
 - Optimaler `PerfectPlayer` mit Negamax und unabhängiger Prüfung aller 4.520 erreichbaren nichtterminalen Spielstellungen.
 - Pioneer-Tests für Konsoleneingaben und Ausgaben sowie QuickTheories-Properties mit reproduzierbaren Seeds.
 - Automatisches PITest-Mutation-Testing als Bestandteil von `check` mit HTML- und XML-Reports.

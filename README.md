@@ -15,7 +15,7 @@ Nur Tests und Coverage-Report:
 ./gradlew clean test jacocoTestReport
 ```
 
-`check` erzwingt mindestens **90 % Branch-Coverage** und führt zusätzlich PITest aus. Der Mutation-Report liegt unter `build/reports/pitest/index.html`, der Testreport unter `build/reports/tests/test/index.html`. QuickTheories und Pioneer laufen automatisch mit den Unit-Tests.
+`check` erzwingt mindestens **90 % Branch-Coverage** und führt zusätzlich PITest und den SonarLint-Java-Analyzer aus. Der Mutation-Report liegt unter `build/reports/pitest/index.html`, der Testreport unter `build/reports/tests/test/index.html` und der SonarLint-Bericht unter `build/reports/sonarlint/report.txt`. QuickTheories und Pioneer laufen automatisch mit den Unit-Tests.
 
 Unter Windows mit JDK 25:
 
@@ -46,7 +46,7 @@ java -jar build/libs/tictactest-1.0.0.jar
 
 ## Automatisierung
 
-- `.github/workflows/ci.yml`: Tests + JaCoCo + 90-%-Branch-Gate + PITest; sämtliche Reports als Build-Artefakt.
+- `.github/workflows/ci.yml`: Tests + JaCoCo + 90-%-Branch-Gate + PITest + SonarLint; sämtliche Reports als Build-Artefakt.
 - `.github/workflows/coverage-pages.yml`: Coverage-Zeitreihe und vollständiger JaCoCo-Report auf `gh-pages`.
 - `.github/workflows/release.yml`: Getaggte Anwendungsversion testen und als GitHub Release mit ausführbarem JAR veröffentlichen.
 - `.github/workflows/devcontainer-ci.yml`: Tests im zuletzt freigegebenen Dev-Container-Image.

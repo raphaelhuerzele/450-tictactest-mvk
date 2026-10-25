@@ -17,6 +17,7 @@ public class HumanPlayer implements TicTacToePlayer {
 	}
 
 	@Override
+	@SuppressWarnings("java:S106") // The prompt belongs on stdout so the human player can read it.
 	public int play(Stone[] board, Stone colorToPlay) {
 		System.out.println(TicTacToeMain.toString(board) + "where to put the next " + colorToPlay + "? (0-8): ");
 		return Integer.parseInt(scanner.nextLine());

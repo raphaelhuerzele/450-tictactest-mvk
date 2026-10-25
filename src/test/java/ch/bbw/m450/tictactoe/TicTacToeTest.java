@@ -76,7 +76,8 @@ class TicTacToeTest {
 
     @Test
     void greedyPlayerRejectsFullBoard() {
-        assertThatThrownBy(() -> new GreedyPlayer().play(TicTacToeFixtures.FULL_BOARD_DRAW, Stone.CROSS))
+        var player = new GreedyPlayer();
+        assertThatThrownBy(() -> player.play(TicTacToeFixtures.FULL_BOARD_DRAW, Stone.CROSS))
                 .isInstanceOf(IllegalStateException.class).hasMessage("cannot play at all");
     }
 
@@ -91,7 +92,9 @@ class TicTacToeTest {
     @ValueSource(ints = {-1, Integer.MIN_VALUE, 9, 10, Integer.MAX_VALUE})
     @StdIo
     void rejectsInvalidPositions(int position, StdOut out) {
-        assertThatThrownBy(() -> TicTacToeMain.play(new QueuePlayer(position), new GreedyPlayer()))
+        var cross = new QueuePlayer(position);
+        var circle = new GreedyPlayer();
+        assertThatThrownBy(() -> TicTacToeMain.play(cross, circle))
                 .isInstanceOf(IllegalStateException.class).hasMessage("cannot play to position " + position);
         assertThat(out.capturedString()).isEqualTo(TicTacToeMain.toString(new Stone[9]) + System.lineSeparator());
     }
@@ -99,7 +102,9 @@ class TicTacToeTest {
     @Test
     @StdIo
     void rejectsOccupiedPosition(StdOut out) {
-        assertThatThrownBy(() -> TicTacToeMain.play(new QueuePlayer(0), new QueuePlayer(0)))
+        var cross = new QueuePlayer(0);
+        var circle = new QueuePlayer(0);
+        assertThatThrownBy(() -> TicTacToeMain.play(cross, circle))
                 .isInstanceOf(IllegalStateException.class).hasMessage("cannot play to position 0");
         assertThat(out.capturedString()).contains("\033[1mX\033[0m");
     }
@@ -148,10 +153,11 @@ class TicTacToeTest {
     @Test
     void rendersExactBoardWithAnsiColorsAndRowBreaks() {
         var board = new Stone[]{Stone.CROSS, Stone.CIRCLE, null, null, null, null, null, null, null};
-        assertThat(TicTacToeMain.toString(board)).isEqualTo(
-                "\033[1mX\033[0m  \033[1mO\033[0m  \033[37m2\033[0m  \n"
-                        + "\033[37m3\033[0m  \033[37m4\033[0m  \033[37m5\033[0m  \n"
-                        + "\033[37m6\033[0m  \033[37m7\033[0m  \033[37m8\033[0m  \n");
+        assertThat(TicTacToeMain.toString(board)).isEqualTo("""
+                \033[1mX\033[0m  \033[1mO\033[0m  \033[37m2\033[0m\s\s
+                \033[37m3\033[0m  \033[37m4\033[0m  \033[37m5\033[0m\s\s
+                \033[37m6\033[0m  \033[37m7\033[0m  \033[37m8\033[0m\s\s
+                """);
     }
 
     @Test
@@ -174,7 +180,9 @@ class TicTacToeTest {
     @Test
     @StdIo("abc")
     void humanRejectsNonNumericInput() {
-        assertThatThrownBy(() -> new HumanPlayer().play(new Stone[9], Stone.CROSS))
+        var player = new HumanPlayer();
+        var board = new Stone[9];
+        assertThatThrownBy(() -> player.play(board, Stone.CROSS))
                 .isInstanceOf(NumberFormatException.class);
     }
 

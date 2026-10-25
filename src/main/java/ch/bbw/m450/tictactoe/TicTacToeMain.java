@@ -13,6 +13,7 @@ public class TicTacToeMain {
 
 	public static final int BOARD_SIZE = 9;
 
+	@SuppressWarnings("java:S1172") // Standard command-line entry point; no arguments are needed.
 	public static void main(String[] args) {
 		play(new HumanPlayer(), new GreedyPlayer());
 	}
@@ -58,6 +59,7 @@ public class TicTacToeMain {
 	 * @param oPlayer the 2nd player. Must not be the same as xPlayer
 	 * @return the winning Color or `null` on draw
 	 */
+	@SuppressWarnings("java:S106") // Game output is the console UI, not diagnostic logging.
 	public static Stone play(TicTacToePlayer xPlayer, TicTacToePlayer oPlayer) {
 		// the board is organized as a 1-dimensional matrix of size 3x3=9
 		// to get the index for position at row r and colum c, calculate index=r*3+c

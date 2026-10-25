@@ -2,7 +2,7 @@
 
 ## Ziel und Abgrenzung
 
-Die ursprüngliche Spiellogik und die vorhandenen Spieler bleiben unverändert. Ergänzt wird ein optimaler `PerfectPlayer`. Tests prüfen normale Spiele, Grenzfälle, Konsoleninteraktion, unveränderte Eingabebretter und optimale Spielentscheidungen. Mockingframeworks werden nicht verwendet.
+Die ursprüngliche Spiellogik und das Verhalten der vorhandenen Spieler bleiben unverändert; hinzu kommen lediglich begründete Sonar-Ausnahmen für Konsolenausgabe und die feste main-Signatur. Ergänzt wird ein optimaler `PerfectPlayer`. Tests prüfen normale Spiele, Grenzfälle, Konsoleninteraktion, unveränderte Eingabebretter und optimale Spielentscheidungen. Mockingframeworks werden nicht verwendet.
 
 ## Werkzeuge
 
@@ -15,6 +15,7 @@ Die ursprüngliche Spiellogik und die vorhandenen Spieler bleiben unverändert. 
 | JaCoCo | 0.8.15 | HTML-, XML-, CSV-Reports und mindestens 90 % Branch-Coverage |
 | Gradle-PITest-Plugin | 1.19.0 | Automatisiertes Mutation Testing |
 | PITest / JUnit-Adapter | 1.30.1 / 1.2.3 | Mutation der Produktionsklassen und Ausführung der Jupiter-Tests |
+| SonarLint Core / SonarJava | 12.2.0.87867 / 8.45.0.59462 | Statische Prüfung aller Java-Produktions- und Testdateien |
 
 Versionen wurden am 25.10.2026 anhand von Maven Central und dem Gradle Plugin Portal geprüft. Milestone- und RC-Versionen werden nicht als stabile Releases verwendet. JUnit 6 behält die Jupiter-API und deren Paketnamen bei; die Tests verwenden weiterhin `org.junit.jupiter`.
 
@@ -67,6 +68,17 @@ Diese Properties benötigen keine legalen Spielhistorien, weil sie lokale Brettf
 
 PITest mutiert die Produktionsklassen mit dem standardmäßigen Mutatorensatz. HTML- und XML-Ausgaben haben feste Pfade. Es werden keine Methoden oder Klassen ausgeschlossen. Ein vollständig grüner Basistestlauf ist Voraussetzung für Mutation Testing. Die Aufgabe nennt keinen Mindest-Mutationsscore; der tatsächliche Score steht im Prüfprotokoll.
 
+## SonarLint-Prüfung
+
+`check` führt außerdem `sonarLint` aus. Ein kleiner Build-Adapter unter `tools/sonarlint/` verwendet die offiziellen SonarLint-Core- und SonarJava-Artefakte, aktiviert die 608 standardmäßig aktiven Java-Regeln und analysiert alle zehn Java-Dateien unter `src/main` und `src/test` mit Java-25-Binaries und vollständigem Test-Classpath. Der Adapter ist ein separates Source Set und wird nicht in das Spiel-JAR aufgenommen. Er benötigt keinen Sonar-Server und überträgt keinen Quellcode an einen Analyse-Service.
+
+Jeder gemeldete Befund sowie fehlgeschlagene Dateianalysen lassen den Build scheitern; ein nicht geladenes Java-Plugin oder eine leere Regelmenge ebenfalls. Der Bericht liegt unter `build/reports/sonarlint/report.txt` und wird automatisch von CI archiviert. Die Befunde wurden nicht durch pauschale Regeldeaktivierung ausgeblendet. Drei methodenspezifische, kommentierte Ausnahmen bleiben bewusst bestehen:
+
+- `java:S106` in `HumanPlayer.play` und `TicTacToeMain.play`: stdout ist die Benutzerschnittstelle dieses Konsolenspiels; ein Diagnose-Logger wäre hier nicht passend.
+- `java:S1172` in `TicTacToeMain.main`: der standardisierte Programmeinstieg benötigt keine Argumente.
+
+Das Ergebnis bezieht sich auf diese dokumentierten Standardregeln. Eine abweichende schulische Connected-Mode-Regelkonfiguration müsste zusätzlich geprüft werden.
+
 ## Lokal ausführen
 
 JDK 25 muss verfügbar sein. Die Java-Toolchain bleibt auf Version 25.
@@ -88,6 +100,7 @@ Für gezielte Läufe:
 ```text
 gradlew.bat test jacocoTestReport
 gradlew.bat pitest
+gradlew.bat sonarLint
 ```
 
 | Ergebnis | Pfad |
@@ -98,13 +111,14 @@ gradlew.bat pitest
 | JaCoCo XML / CSV | build/reports/jacoco/test/ |
 | PITest HTML | build/reports/pitest/index.html |
 | PITest XML | build/reports/pitest/mutations.xml |
+| SonarLint | build/reports/sonarlint/report.txt |
 
 ## CI, Pages und Abgabe
 
-`.github/workflows/ci.yml` läuft bei jedem Push sowie bei Pull Requests auf main und auf manuellen Aufruf. `clean check jar` umfasst alle drei Testansätze, Branch-Gate und Mutation Testing. Der Upload mit `if: always()` archiviert `build/reports/` und `build/test-results/`, einschließlich vorhandener Fehlerberichte. Ein früher Konfigurationsfehler kann die Erzeugung von Reports verhindern.
+`.github/workflows/ci.yml` läuft bei jedem Push sowie bei Pull Requests auf main und auf manuellen Aufruf. `clean check jar` umfasst alle drei Testansätze, Branch-Gate, Mutation Testing und SonarLint. Der Upload mit `if: always()` archiviert `build/reports/` und `build/test-results/`, einschließlich vorhandener Fehlerberichte. Ein früher Konfigurationsfehler kann die Erzeugung von Reports verhindern.
 
 Die Pages-Zeitreihe verwendet Branch-Coverage aus `scripts/coverage.sh` und speichert sie separat als `data/branch-coverage.csv`; frühere Zeilenwerte werden nicht mit Branch-Werten vermischt. Anwendungs- und Dev-Container-Releases verwenden ebenfalls `check` und damit Mutation Testing. Die bestehenden Release-Anleitungen gelten weiterhin.
 
-Ein lokaler grüner Lauf ist kein Nachweis eines entfernten CI-Laufs. Private Repository-Sichtbarkeit, Zugriff der Lehrperson und Abgabetermin müssen separat erfüllt sein. Der Dev Container empfiehlt zusätzlich die SonarQube-for-IDE-Erweiterung (vormals SonarLint); ein fehlendes IDE-Prüfergebnis darf nicht als Warnungsfreiheit ausgegeben werden.
+Ein lokaler grüner Lauf ist kein Nachweis eines entfernten CI-Laufs. Private Repository-Sichtbarkeit, Zugriff der Lehrperson und Abgabetermin müssen separat erfüllt sein. Der Dev Container empfiehlt zusätzlich zum automatischen SonarLint-Lauf die SonarQube-for-IDE-Erweiterung für direktes Feedback beim Bearbeiten.
 
 Offizielle Dokumentation: [JUnit](https://junit.org/), [AssertJ](https://github.com/assertj/assertj/releases), [Pioneer](https://junit-pioneer.org/docs/standard-input-output/), [QuickTheories](https://github.com/quicktheories/QuickTheories), [JaCoCo](https://www.jacoco.org/jacoco/), [PITest](https://pitest.org/), [Gradle-PITest-Plugin](https://plugins.gradle.org/plugin/info.solidsoft.pitest).

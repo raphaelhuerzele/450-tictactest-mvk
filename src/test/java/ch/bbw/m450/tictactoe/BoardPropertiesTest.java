@@ -26,7 +26,8 @@ class BoardPropertiesTest {
                     if (expected.isPresent()) {
                         assertThat(new GreedyPlayer().play(board, Stone.CROSS)).isEqualTo(expected.getAsInt());
                     } else {
-                        assertThatThrownBy(() -> new GreedyPlayer().play(board, Stone.CROSS))
+                        var player = new GreedyPlayer();
+                        assertThatThrownBy(() -> player.play(board, Stone.CROSS))
                                 .isInstanceOf(IllegalStateException.class);
                     }
                     assertThat(board).containsExactly(before);

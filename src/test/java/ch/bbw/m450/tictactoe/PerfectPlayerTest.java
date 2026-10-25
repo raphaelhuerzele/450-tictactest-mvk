@@ -137,20 +137,25 @@ class PerfectPlayerTest {
     @EnumSource(Stone.class)
     void rejectsAlreadyWonBoards(Stone color) {
         var board = TicTacToeFixtures.boardWithWinningLine(new int[]{0, 1, 2}, color);
-        assertThatThrownBy(() -> new PerfectPlayer().play(board, color.opponent()))
+        var player = new PerfectPlayer();
+        var opponent = color.opponent();
+        assertThatThrownBy(() -> player.play(board, opponent))
                 .isInstanceOf(IllegalStateException.class).hasMessage("game is already over");
     }
 
     @Test
     void rejectsFullBoard() {
-        assertThatThrownBy(() -> new PerfectPlayer().play(TicTacToeFixtures.FULL_BOARD_DRAW, Stone.CROSS))
+        var player = new PerfectPlayer();
+        assertThatThrownBy(() -> player.play(TicTacToeFixtures.FULL_BOARD_DRAW, Stone.CROSS))
                 .isInstanceOf(IllegalStateException.class).hasMessage("cannot play at all");
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 8, 10})
     void rejectsWrongBoardSize(int size) {
-        assertThatThrownBy(() -> new PerfectPlayer().play(new Stone[size], Stone.CROSS))
+        var player = new PerfectPlayer();
+        var board = new Stone[size];
+        assertThatThrownBy(() -> player.play(board, Stone.CROSS))
                 .isInstanceOf(IllegalArgumentException.class).hasMessage("board must contain nine fields");
     }
 

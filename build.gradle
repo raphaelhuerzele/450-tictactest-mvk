@@ -17,6 +17,16 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    quality {
+        java.srcDir 'tools/sonarlint'
+    }
+}
+
+configurations {
+    sonarJava
+}
+
 jar {
     archiveBaseName = 'tictactest'
     manifest {
@@ -31,6 +41,9 @@ dependencies {
     testImplementation 'org.junit-pioneer:junit-pioneer:2.3.0'
     testImplementation 'org.quicktheories:quicktheories:0.26'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    qualityImplementation 'org.sonarsource.sonarlint.core:sonarlint-analysis-engine:12.2.0.87867'
+    qualityImplementation 'org.sonarsource.sonarlint.core:sonarlint-rule-extractor:12.2.0.87867'
+    sonarJava('org.sonarsource.java:sonar-java-plugin:8.45.0.59462') { transitive = false }
 }
 
 test {
@@ -82,3 +95,18 @@ check.dependsOn 'pitest'
 tasks.named('pitest') {
     mustRunAfter test
 }
+
+tasks.register('sonarLint', JavaExec) {
+    group = 'verification'
+    description = 'Run the SonarLint Java analyzer with its default rules on main and test sources.'
+    dependsOn testClasses, qualityClasses
+    classpath = sourceSets.quality.runtimeClasspath
+    mainClass = 'quality.SonarLintCheck'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
+    doFirst {
+        args = [projectDir.absolutePath, configurations.sonarJava.singleFile.absolutePath,
+                sourceSets.test.runtimeClasspath.asPath]
+    }
+}
+
+check.dependsOn 'sonarLint'
