@@ -1,116 +1,110 @@
 # Testkonzept – TicTacTest
 
-## 1. Ziel
+## Ziel und Abgrenzung
 
-Das Projekt wird automatisiert auf korrekte Spiellogik, gültige Spielerzüge und stabile Randfallbehandlung geprüft. Die Tests sollen schnell, reproduzierbar und ohne manuelle Eingaben laufen. Zusätzlich wird die Testabdeckung mit JaCoCo gemessen und in CI sowie als Zeitreihe auf GitHub Pages veröffentlicht.
+Die ursprüngliche Spiellogik und die vorhandenen Spieler bleiben unverändert. Ergänzt wird ein optimaler `PerfectPlayer`. Tests prüfen normale Spiele, Grenzfälle, Konsoleninteraktion, unveränderte Eingabebretter und optimale Spielentscheidungen. Mockingframeworks werden nicht verwendet.
 
-## 2. Teststrategie
+## Werkzeuge
 
-Verwendet werden Unit-Tests mit JUnit 5 und AssertJ. Wiederkehrende Testdaten sind als benannte Fixtures in `TicTacToeFixtures` abgelegt. Für deterministische Spielabläufe dient `QueuePlayer` als Test-Helper/Test-Double. Gleichartige Fälle, insbesondere alle acht möglichen Gewinnlinien, werden als parametrisierte Tests ausgeführt.
+| Werkzeug | Stabile Version | Verwendung |
+| --- | --- | --- |
+| JUnit Jupiter / Platform | 6.1.3 | Unit-Tests, MethodSource, CsvSource, EnumSource, ValueSource |
+| AssertJ | 3.27.7 | Fluent Assertions auf Ergebnisse, Arrays, Ausgaben und Exceptions |
+| JUnit Pioneer | 2.3.0 | `@StdIo` und `StdOut` für isolierte Ein-/Ausgabetests |
+| QuickTheories | 0.26 | Zusätzliches Testingframework: generierte Spielbretter und Properties |
+| JaCoCo | 0.8.15 | HTML-, XML-, CSV-Reports und mindestens 90 % Branch-Coverage |
+| Gradle-PITest-Plugin | 1.19.0 | Automatisiertes Mutation Testing |
+| PITest / JUnit-Adapter | 1.30.1 / 1.2.3 | Mutation der Produktionsklassen und Ausführung der Jupiter-Tests |
 
-Die Tests folgen soweit sinnvoll dem Given-When-Then-Prinzip:
+Versionen wurden am 25.10.2026 anhand von Maven Central und dem Gradle Plugin Portal geprüft. Milestone- und RC-Versionen werden nicht als stabile Releases verwendet. JUnit 6 behält die Jupiter-API und deren Paketnamen bei; die Tests verwenden weiterhin `org.junit.jupiter`.
 
-- **Given:** Ausgangslage, Fixture oder Test-Double wird vorbereitet.
-- **When:** Die zu prüfende Methode wird ausgeführt.
-- **Then:** Das Ergebnis oder die erwartete Exception wird geprüft.
+## Testdaten und Struktur
 
-## 3. Testobjekte
+`TicTacToeFixtures` stellt ein volles Unentschieden-Brett und eine Factory für Gewinnlinien bereit. `QueuePlayer` ist ein handgeschriebenes, deterministisches Test-Double für vollständige Partien. Die Produktion benötigt weder diese Hilfsstrukturen noch Testbibliotheken.
 
-| Bereich | Was wird geprüft? |
-|---|---|
-| `Stone` | Gegenspieler von CROSS/CIRCLE |
-| `TicTacToeMain.isWin` | 3 Reihen, 3 Spalten, 2 Diagonalen und kein Gewinner |
-| `TicTacToeMain.play` | Sieg CROSS, Sieg CIRCLE, Unentschieden, ungültige Züge |
-| `TicTacToeMain.toString` | Darstellung von X, O und freien Feldern |
-| `GreedyPlayer` | erstes freies Feld und volles Brett |
-| `HumanPlayer` | Einlesen einer gültigen Position aus `System.in` |
+Alle Tests laufen ohne Benutzereingaben. Pioneer verwaltet und restauriert die Standardstreams; es gibt kein manuelles `System.setIn`. Die Tests laufen sequenziell im Testprozess, damit Konsolentests nicht gegenseitig ihre Streams verändern.
 
-## 4. Fixtures und Helper
+## Testfälle
 
-`src/test/java/ch/bbw/m450/tictactoe/TicTacToeFixtures.java` enthält wiederverwendbare Boards:
+| Bereich | Abgedeckte Fälle |
+| --- | --- |
+| Stone | Gegenspieler für beide Farben, zweimaliges Wechseln ergibt ursprüngliche Farbe |
+| Gewinnerkennung | Alle acht Gewinnlinien für beide Farben; leeres Brett; Unentschieden; jedes fehlende und gegnerische Feld einer Gewinnlinie |
+| GreedyPlayer | Jedes mögliche erste freie Feld; volles Brett; keine Veränderung der Eingabe |
+| Spielschleife | Identische Spielerinstanzen; negative und zu große Positionen einschließlich Integer-Grenzen; belegtes Feld; Farbwechsel; defensive Kopien |
+| Spielende | CROSS-Sieg, CIRCLE-Sieg, Unentschieden; Sieg beim neunten Zug hat Vorrang vor Unentschieden; keine zusätzlichen Züge nach Sieg |
+| Darstellung | Exakte ANSI-Sequenzen, X/O, freie Feldnummern, Abstände und Zeilenumbrüche |
+| HumanPlayer | Mehrere aufeinanderfolgende Eingaben, beide Farben im Prompt, exakte Ausgabe, nichtnumerische Eingabe |
+| Programmeinstieg | Vollständige Konsolenpartie über `main` und Pioneer |
+| PerfectPlayer | Sofort gewinnen und Verlust blockieren für beide Farben; perfektes Spiel gegeneinander ergibt Unentschieden; Nullargumente, falsche Brettgröße, volles und bereits gewonnenes Brett |
 
-- `ROW_WIN_CROSS`
-- `DIAGONAL_WIN_CIRCLE`
-- `FULL_BOARD_DRAW`
+## Vollständige Prüfung des perfekten Spielers
 
-Die Helper-Methode `boardWithWinningLine(...)` erzeugt für parametrisierte Tests gezielt ein Board mit einer Gewinnlinie.
+`PerfectPlayer` verwendet Negamax: Jeder mögliche Zug erhält den Wert Gewinn, Unentschieden oder Verlust aus Sicht des ziehenden Spielers. Der Spieler wählt einen Zug mit maximalem Wert und arbeitet auf einer Kopie des Eingabebretts.
 
-`src/test/java/ch/bbw/m450/tictactoe/QueuePlayer.java` ist ein deterministisches Test-Double. Es liefert eine vorgegebene Folge von Zügen und ermöglicht damit vollständige Spiele ohne Benutzereingabe.
+`PerfectPlayerTest` prüft **alle 4.520 legal erreichbaren, nichtterminalen Spielstellungen**, unabhängig davon, wie die vorherigen Spieler gezogen haben. Dadurch werden auch Stellungen geprüft, die der perfekte Spieler selbst nie herbeiführen würde.
 
-## 5. Parametrisierte Tests
+Die Referenz ist unabhängig implementiert: zwei Integer-Bitboards, acht Gewinnmasken und ein Minimax-Algorithmus, der aus Sicht von CROSS maximiert und aus Sicht von CIRCLE minimiert. Die Referenz ruft weder die Produktions-Gewinnerkennung noch die Produktions-Suche auf. Für jede Stellung wird geprüft:
 
-`isWinDetectsAllWinningLines(...)` verwendet `@ParameterizedTest` und `@MethodSource`. Damit werden alle acht Gewinnlinien mit derselben Testlogik geprüft:
+1. Der gewählte Index liegt zwischen 0 und 8 und das Feld ist frei.
+2. Das Eingabebrett bleibt unverändert.
+3. Der gewählte Zug erhält denselben spieltheoretischen Wert wie die optimale Referenzentscheidung.
 
-1. obere Reihe
-2. mittlere Reihe
-3. untere Reihe
-4. linke Spalte
-5. mittlere Spalte
-6. rechte Spalte
-7. Hauptdiagonale
-8. Gegendiagonale
+Das ist stärker als einzelne Beispielpartien und prüft neben Unbesiegbarkeit auch das Nutzen erzwingbarer Siege.
 
-`opponentReturnsOtherStone(...)` verwendet `@CsvSource` für beide Enum-Werte.
+## Zusätzliches Framework: QuickTheories
 
-## 6. Testfälle und Erwartungen
+`BoardPropertiesTest` führt zwei Properties mit jeweils 1.000 Beispielen und festen Seeds 450 und 451 aus. Ein ternär kodierter Wert erzeugt ein Brett aus dem Raum aller 3^9 Belegungen. Die Stichproben sind reproduzierbar; sie sind keine vollständige Enumeration.
 
-| ID | Given | When | Then |
-|---|---|---|---|
-| T01 | CROSS oder CIRCLE | `opponent()` | jeweils anderer Stein |
-| T02 | Board mit einer der 8 Gewinnlinien | `isWin` | `true` für Gewinner |
-| T03 | volles Draw-Board | `isWin` | `false` für beide Farben |
-| T04 | teilweise belegtes Board | `GreedyPlayer.play` | erstes freies Feld |
-| T05 | volles Board | `GreedyPlayer.play` | `IllegalStateException` |
-| T06 | gleiche Player-Instanz zweimal | `play` | `IllegalArgumentException` |
-| T07 | Position kleiner als 0 | `play` | `IllegalStateException` |
-| T08 | bereits belegte Position | `play` | `IllegalStateException` |
-| T09 | deterministische CROSS-Züge | vollständiges `play` | CROSS gewinnt |
-| T10 | deterministische CIRCLE-Züge | vollständiges `play` | CIRCLE gewinnt |
-| T11 | deterministisches volles Board | vollständiges `play` | Rückgabewert `null` |
-| T12 | Board mit X/O/leeren Feldern | `toString` | Ausgabe enthält X, O und Index |
-| T13 | Eingabe `4` | `HumanPlayer.play` | Position 4 wird zurückgegeben |
+- GreedyPlayer wählt stets das erste freie Feld oder wirft bei vollem Brett die erwartete Exception; das Brett bleibt unverändert.
+- Gleichzeitiges Vertauschen beider Farben erhält die Gewinnlinien für die jeweils vertauschte Farbe.
 
-## 7. Coverage
+Diese Properties benötigen keine legalen Spielhistorien, weil sie lokale Brettfunktionen prüfen. Die Legalität vollständiger Partien wird separat geprüft.
 
-JaCoCo wird über das Gradle-Plugin ausgeführt. Erzeugt werden XML-, HTML- und CSV-Reports unter `build/reports/jacoco/test/`.
+## Coverage und Mutation Testing
 
-Lokal:
+`check` hängt sowohl von `jacocoTestCoverageVerification` als auch von `pitest` ab. Das JaCoCo-Gate verwendet explizit `BRANCH`, `COVEREDRATIO`, mindestens `0.90`; keine Produktionsklasse ist ausgeschlossen.
+
+PITest mutiert die Produktionsklassen mit dem standardmäßigen Mutatorensatz. HTML- und XML-Ausgaben haben feste Pfade. Es werden keine Methoden oder Klassen ausgeschlossen. Ein vollständig grüner Basistestlauf ist Voraussetzung für Mutation Testing. Die Aufgabe nennt keinen Mindest-Mutationsscore; der tatsächliche Score steht im Prüfprotokoll.
+
+## Lokal ausführen
+
+JDK 25 muss verfügbar sein. Die Java-Toolchain bleibt auf Version 25.
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-25.0.1.8-hotspot'
+$env:GRADLE_USER_HOME = "$env:USERPROFILE\.gradle"
+.\gradlew.bat clean check jar --no-daemon --no-build-cache --rerun-tasks
+```
+
+Unter Linux bzw. im Dev Container:
 
 ```bash
-./gradlew clean test jacocoTestReport
+sh ./gradlew clean check jar --no-daemon --no-build-cache --rerun-tasks
 ```
 
-Der HTML-Report liegt danach unter:
+Für gezielte Läufe:
 
 ```text
-build/reports/jacoco/test/html/index.html
+gradlew.bat test jacocoTestReport
+gradlew.bat pitest
 ```
 
-`./gradlew check` enthält zusätzlich ein Quality Gate von mindestens **90 % Line Coverage**.
+| Ergebnis | Pfad |
+| --- | --- |
+| JUnit / QuickTheories HTML | build/reports/tests/test/index.html |
+| JUnit XML | build/test-results/test/ |
+| JaCoCo HTML | build/reports/jacoco/test/html/index.html |
+| JaCoCo XML / CSV | build/reports/jacoco/test/ |
+| PITest HTML | build/reports/pitest/index.html |
+| PITest XML | build/reports/pitest/mutations.xml |
 
-## 8. CI
+## CI, Pages und Abgabe
 
-`.github/workflows/ci.yml` führt bei Pushes und Pull Requests die Tests, JaCoCo und das Quality Gate aus. Der HTML-Report wird als GitHub-Actions-Artifact hochgeladen und die aktuelle Coverage im Workflow Summary angezeigt.
+`.github/workflows/ci.yml` läuft bei jedem Push sowie bei Pull Requests auf main und auf manuellen Aufruf. `clean check jar` umfasst alle drei Testansätze, Branch-Gate und Mutation Testing. Der Upload mit `if: always()` archiviert `build/reports/` und `build/test-results/`, einschließlich vorhandener Fehlerberichte. Ein früher Konfigurationsfehler kann die Erzeugung von Reports verhindern.
 
-## 9. Coverage-Zeitreihe / GitHub Pages
+Die Pages-Zeitreihe verwendet Branch-Coverage aus `scripts/coverage.sh` und speichert sie separat als `data/branch-coverage.csv`; frühere Zeilenwerte werden nicht mit Branch-Werten vermischt. Anwendungs- und Dev-Container-Releases verwenden ebenfalls `check` und damit Mutation Testing. Die bestehenden Release-Anleitungen gelten weiterhin.
 
-`.github/workflows/coverage-pages.yml` läuft auf `main`, liest die aktuelle Coverage aus dem JaCoCo-XML, ergänzt `coverage.csv` um Datum, Commit und Prozentwert und veröffentlicht die Seite auf dem Branch `gh-pages`.
+Ein lokaler grüner Lauf ist kein Nachweis eines entfernten CI-Laufs. Private Repository-Sichtbarkeit, Zugriff der Lehrperson und Abgabetermin müssen separat erfüllt sein. Der Dev Container empfiehlt zusätzlich die SonarQube-for-IDE-Erweiterung (vormals SonarLint); ein fehlendes IDE-Prüfergebnis darf nicht als Warnungsfreiheit ausgegeben werden.
 
-Die Darstellung liegt in `pages/index.html` und zeigt:
-
-- aktuelle Coverage,
-- Änderung gegenüber der vorherigen Messung,
-- Status des 90-%-Quality-Gates,
-- Coverage-Verlauf,
-- Tabelle aller Messungen,
-- Link zum vollständigen JaCoCo-HTML-Report.
-
-## 10. Dev Container
-
-`.devcontainer/devcontainer.json` verweist auf einen exakt versionierten und freigegebenen Dev Container aus GHCR. Der Workflow `.github/workflows/devcontainer-ci.yml` führt `./gradlew clean check` in genau diesem Image aus und darf selbst keine Images veröffentlichen.
-
-Releases werden ausschließlich durch `.github/workflows/devcontainer-release.yml` erzeugt. Der Workflow akzeptiert stabile SemVer-Tags, baut und testet das Image und pusht es erst danach nach GHCR. Anschließend erstellt er automatisch einen Pull Request, der CI und lokale Entwicklung auf die neue unveränderliche Version aktualisiert. Der Prozess ist in `DEVCONTAINER_RELEASE.md` dokumentiert.
-
-## 11. Anwendungs-Releases
-
-Der Workflow `.github/workflows/release.yml` startet nur bei stabilen Tags wie `v1.0.0`. Er wiederholt alle Tests und das Coverage-Gate, baut das ausführbare JAR, startet damit eine vollständige Beispielpartie und veröffentlicht es zusammen mit einer SHA-256-Prüfsumme als GitHub Release. Der reproduzierbare Ablauf und seine Voraussetzungen stehen in `RELEASE.md`; benutzerrelevante Änderungen stehen in `CHANGELOG.md`.
+Offizielle Dokumentation: [JUnit](https://junit.org/), [AssertJ](https://github.com/assertj/assertj/releases), [Pioneer](https://junit-pioneer.org/docs/standard-input-output/), [QuickTheories](https://github.com/quicktheories/QuickTheories), [JaCoCo](https://www.jacoco.org/jacoco/), [PITest](https://pitest.org/), [Gradle-PITest-Plugin](https://plugins.gradle.org/plugin/info.solidsoft.pitest).

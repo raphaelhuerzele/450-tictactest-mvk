@@ -50,15 +50,16 @@ jobs:
           cp pages/index.html site/index.html
           cp -R build/reports/jacoco/test/html/. site/coverage/
 
-          if [ -f gh-pages/data/coverage.csv ]; then
-            cp gh-pages/data/coverage.csv site/data/coverage.csv
+          # Keep the new branch metric separate from the previous line history.
+          if [ -f gh-pages/data/branch-coverage.csv ]; then
+            cp gh-pages/data/branch-coverage.csv site/data/branch-coverage.csv
           else
-            echo "Date,Commit,Coverage" > site/data/coverage.csv
+            echo "Date,Commit,Coverage" > site/data/branch-coverage.csv
           fi
 
           short_sha="${GITHUB_SHA:0:7}"
-          if ! grep -q ",${short_sha}," site/data/coverage.csv; then
-            echo "$(date -u +%Y-%m-%d),${short_sha},${COVERAGE}" >> site/data/coverage.csv
+          if ! grep -q ",${short_sha}," site/data/branch-coverage.csv; then
+            echo "$(date -u +%Y-%m-%d),${short_sha},${COVERAGE}" >> site/data/branch-coverage.csv
           fi
 
           echo "## Coverage on main" >> "$GITHUB_STEP_SUMMARY"

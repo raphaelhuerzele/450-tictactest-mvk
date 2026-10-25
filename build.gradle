@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'jacoco'
+    id 'info.solidsoft.pitest' version '1.19.0'
 }
 
 group = 'ch.bbw.m450'
@@ -24,9 +25,11 @@ jar {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation platform('org.junit:junit-bom:6.1.3')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.assertj:assertj-core:3.27.3'
+    testImplementation 'org.assertj:assertj-core:3.27.7'
+    testImplementation 'org.junit-pioneer:junit-pioneer:2.3.0'
+    testImplementation 'org.quicktheories:quicktheories:0.26'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -36,7 +39,7 @@ test {
 }
 
 jacoco {
-    toolVersion = '0.8.14'
+    toolVersion = '0.8.15'
 }
 
 jacocoTestReport {
@@ -53,7 +56,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                counter = 'LINE'
+                counter = 'BRANCH'
                 value = 'COVEREDRATIO'
                 minimum = 0.90
             }
@@ -62,3 +65,20 @@ jacocoTestCoverageVerification {
 }
 
 check.dependsOn jacocoTestCoverageVerification
+
+pitest {
+    pitestVersion = '1.30.1'
+    junit5PluginVersion = '1.2.3'
+    targetClasses = ['ch.bbw.m450.tictactoe.*']
+    targetTests = ['ch.bbw.m450.tictactoe.*Test']
+    threads = 2
+    outputFormats = ['HTML', 'XML']
+    timestampedReports = false
+    // Keep mutation testing reproducible and independent of JaCoCo instrumentation.
+    jvmArgs = ['-Dfile.encoding=UTF-8']
+}
+
+check.dependsOn 'pitest'
+tasks.named('pitest') {
+    mustRunAfter test
+}

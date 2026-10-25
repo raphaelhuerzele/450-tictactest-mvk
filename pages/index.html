@@ -94,7 +94,7 @@
 </head>
 <body>
 <main>
-  <h1>JaCoCo Coverage Time Series</h1>
+  <h1>JaCoCo Branch-Coverage</h1>
   <p class="muted">TicTacTest · Branch <code>main</code> · eine Messung pro Commit</p>
 
   <section class="cards" id="cards"></section>
@@ -224,7 +224,7 @@ function renderChart(rows) {
   svg.innerHTML = parts.join('');
 }
 
-fetch('data/coverage.csv', { cache: 'no-store' })
+fetch('data/branch-coverage.csv', { cache: 'no-store' })
   .then(response => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.text();

@@ -29,19 +29,21 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Run tests, coverage and quality gate
+      - name: Run tests, branch coverage gate and mutation testing
         run: ./gradlew clean check jar --no-daemon
 
       - name: Add coverage to workflow summary
         run: |
           coverage="$(bash scripts/coverage.sh)"
           echo "## JaCoCo coverage" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Line coverage: ${coverage}%**" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Branch coverage: ${coverage}%**" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload JaCoCo HTML report
+      - name: Upload all verification reports
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: jacoco-coverage-report
-          path: build/reports/jacoco/test
+          name: verification-reports
+          path: |
+            build/reports/
+            build/test-results/
           if-no-files-found: warn

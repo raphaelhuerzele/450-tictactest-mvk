@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prints the overall JaCoCo line coverage as a percentage with one decimal place.
+# Prints the overall JaCoCo branch coverage as a percentage with one decimal place.
 set -euo pipefail
 
 xml="${1:-build/reports/jacoco/test/jacocoTestReport.xml}"
@@ -9,7 +9,7 @@ if [ ! -f "$xml" ]; then
   exit 1
 fi
 
-counter="$(grep -oE '<counter type="LINE" missed="[0-9]+" covered="[0-9]+"/>' "$xml" | tail -1)"
+counter="$(grep -oE '<counter type="BRANCH" missed="[0-9]+" covered="[0-9]+"/>' "$xml" | tail -1)"
 missed="$(printf '%s\n' "$counter" | sed -E 's/.*missed="([0-9]+)".*/\1/')"
 covered="$(printf '%s\n' "$counter" | sed -E 's/.*covered="([0-9]+)".*/\1/')"
 

@@ -2,6 +2,20 @@
 
 Alle relevanten Änderungen an TicTacTest werden in dieser Datei dokumentiert. Das Format orientiert sich an Keep a Changelog und verwendet Semantic Versioning.
 
+## [Unreleased]
+
+### Added
+
+- Optimaler `PerfectPlayer` mit Negamax und unabhängiger Prüfung aller 4.520 erreichbaren nichtterminalen Spielstellungen.
+- Pioneer-Tests für Konsoleneingaben und Ausgaben sowie QuickTheories-Properties mit reproduzierbaren Seeds.
+- Automatisches PITest-Mutation-Testing als Bestandteil von `check` mit HTML- und XML-Reports.
+- CI-Artefakte mit sämtlichen Test-, Coverage- und Mutation-Reports.
+
+### Changed
+
+- Das 90-%-Coverage-Gate und die Coverage-Zeitreihe verwenden Branch-Coverage; die neue Messreihe ist von der bisherigen Zeilenmetrik getrennt.
+- Testbibliotheken auf die am 25.10.2026 ermittelten neuesten stabilen Versionen aktualisiert.
+
 ## [1.0.1] - 2026-09-23
 
 ### Fixed
