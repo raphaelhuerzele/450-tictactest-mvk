@@ -17,9 +17,10 @@ public class HumanPlayer implements TicTacToePlayer {
 <span class="fc" id="L17">	}</span>
 
 	@Override
+	@SuppressWarnings(&quot;java:S106&quot;) // The prompt belongs on stdout so the human player can read it.
 	public int play(Stone[] board, Stone colorToPlay) {
-<span class="fc" id="L21">		System.out.println(TicTacToeMain.toString(board) + &quot;where to put the next &quot; + colorToPlay + &quot;? (0-8): &quot;);</span>
-<span class="fc" id="L22">		return Integer.parseInt(scanner.nextLine());</span>
+<span class="fc" id="L22">		System.out.println(TicTacToeMain.toString(board) + &quot;where to put the next &quot; + colorToPlay + &quot;? (0-8): &quot;);</span>
+<span class="fc" id="L23">		return Integer.parseInt(scanner.nextLine());</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
