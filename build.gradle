@@ -98,14 +98,14 @@ tasks.named('pitest') {
 
 tasks.register('sonarLint', JavaExec) {
     group = 'verification'
-    description = 'Run the SonarLint Java analyzer with its default rules on main and test sources.'
+    description = 'Run the SonarLint Java analyzer on production, test and analysis-tool sources.'
     dependsOn testClasses, qualityClasses
     classpath = sourceSets.quality.runtimeClasspath
     mainClass = 'quality.SonarLintCheck'
     javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
     doFirst {
         args = [projectDir.absolutePath, configurations.sonarJava.singleFile.absolutePath,
-                sourceSets.test.runtimeClasspath.asPath]
+                (sourceSets.test.runtimeClasspath + sourceSets.quality.runtimeClasspath).asPath]
     }
 }
 

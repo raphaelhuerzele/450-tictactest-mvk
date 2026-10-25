@@ -70,7 +70,7 @@ PITest mutiert die Produktionsklassen mit dem standardmäßigen Mutatorensatz. H
 
 ## SonarLint-Prüfung
 
-`check` führt außerdem `sonarLint` aus. Ein kleiner Build-Adapter unter `tools/sonarlint/` verwendet die offiziellen SonarLint-Core- und SonarJava-Artefakte, aktiviert die 608 standardmäßig aktiven Java-Regeln und analysiert alle zehn Java-Dateien unter `src/main` und `src/test` mit Java-25-Binaries und vollständigem Test-Classpath. Der Adapter ist ein separates Source Set und wird nicht in das Spiel-JAR aufgenommen. Er benötigt keinen Sonar-Server und überträgt keinen Quellcode an einen Analyse-Service.
+`check` führt außerdem `sonarLint` aus. Ein kleiner Build-Adapter unter `tools/sonarlint/` verwendet die offiziellen SonarLint-Core- und SonarJava-Artefakte, aktiviert die 608 standardmäßig aktiven Java-Regeln und analysiert alle elf Java-Dateien unter `src/main`, `src/test` und `tools/sonarlint` mit Java-25-Binaries und vollständigem Test-/Tool-Classpath. Auch der Adapter selbst wird analysiert. Er ist ein separates Source Set und wird nicht in das Spiel-JAR aufgenommen. Er benötigt keinen Sonar-Server und überträgt keinen Quellcode an einen Analyse-Service.
 
 Jeder gemeldete Befund sowie fehlgeschlagene Dateianalysen lassen den Build scheitern; ein nicht geladenes Java-Plugin oder eine leere Regelmenge ebenfalls. Der Bericht liegt unter `build/reports/sonarlint/report.txt` und wird automatisch von CI archiviert. Die Befunde wurden nicht durch pauschale Regeldeaktivierung ausgeblendet. Drei methodenspezifische, kommentierte Ausnahmen bleiben bewusst bestehen:
 

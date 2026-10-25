@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -34,6 +35,8 @@ import org.sonarsource.sonarlint.core.rule.extractor.RulesDefinitionExtractor;
 
 /** Build-only adapter for SonarSource's analysis engine; never included in the game JAR. */
 public final class SonarLintCheck {
+    private static final System.Logger LOGGER = System.getLogger(SonarLintCheck.class.getName());
+
     private SonarLintCheck() {
     }
 
@@ -57,16 +60,13 @@ public final class SonarLintCheck {
         if (activeRules.isEmpty()) {
             throw new IllegalStateException("No default Java rules were activated");
         }
-        var files = new ArrayList<ClientInputFile>();
-        try (var paths = Files.walk(base.resolve("src"))) {
-            paths.filter(path -> path.toString().endsWith(".java"))
-                    .forEach(path -> files.add(new SourceFile(base, path)));
-        }
+        var files = sourceFiles(base);
         var config = AnalysisConfiguration.builder().setBaseDir(base).addInputFiles(files)
                 .addActiveRules(activeRules)
                 .putExtraProperty("sonar.java.source", "25")
                 .putExtraProperty("sonar.java.jdkHome", System.getProperty("java.home"))
-                .putExtraProperty("sonar.java.binaries", base.resolve("build/classes/java/main").toString())
+                .putExtraProperty("sonar.java.binaries", base.resolve("build/classes/java/main") + ","
+                        + base.resolve("build/classes/java/quality"))
                 .putExtraProperty("sonar.java.test.binaries", base.resolve("build/classes/java/test").toString())
                 .putExtraProperty("sonar.java.libraries", args[2].replace(java.io.File.pathSeparator, ","))
                 .putExtraProperty("sonar.java.test.libraries", args[2].replace(java.io.File.pathSeparator, ","))
@@ -78,7 +78,7 @@ public final class SonarLintCheck {
                     @Override
                     public void log(String message, Level level) {
                         if (level != Level.DEBUG && level != Level.TRACE) {
-                            System.out.println(level + ": " + message);
+                            LOGGER.log(System.Logger.Level.INFO, level + ": " + message);
                         }
                     }
                 });
@@ -107,10 +107,21 @@ public final class SonarLintCheck {
         var report = base.resolve("build/reports/sonarlint/report.txt");
         Files.createDirectories(report.getParent());
         Files.write(report, lines, StandardCharsets.UTF_8);
-        lines.forEach(System.out::println);
+        lines.forEach(line -> LOGGER.log(System.Logger.Level.INFO, line));
         if (!issues.isEmpty()) {
             throw new IllegalStateException("SonarLint reported " + issues.size() + " issues; see " + report);
         }
+    }
+
+    private static List<ClientInputFile> sourceFiles(Path base) throws IOException {
+        var files = new ArrayList<ClientInputFile>();
+        for (var folder : new String[]{"src", "tools/sonarlint"}) {
+            try (var paths = Files.walk(base.resolve(folder))) {
+                paths.filter(path -> path.toString().endsWith(".java"))
+                        .forEach(path -> files.add(new SourceFile(base, path)));
+            }
+        }
+        return files;
     }
 
     private record JavaRule(RuleKey ruleKey, String severity, Map<String, String> params,

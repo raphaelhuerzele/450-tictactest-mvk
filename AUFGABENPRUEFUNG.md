@@ -16,7 +16,7 @@ Auf ausdrücklichen Wunsch wurden Implementierungen durch KI erstellt. Die schul
 | 6 | Zusätzlicher perfekt spielender Player | Umgesetzt: PerfectPlayer; optimale Entscheidungen auf allen 4.520 erreichbaren nichtterminalen Stellungen gegen unabhängige Bitboard-Referenz geprüft. |
 | 7 | Zusätzliches Testingframework mit automatischem Beispieltest | Umgesetzt: QuickTheories, zwei Properties mit je 1.000 Beispielen und festen Seeds; automatisch in test/check/CI. |
 | 8 | Automatisiertes PITest | Umgesetzt: Bestandteil von check; 78/78 Mutationen KILLED, keine überlebenden oder ungetesteten Mutationen im Standard-Mutatorensatz. HTML/XML vorhanden. |
-| 9 | SonarLint, Stil, var, aktuelle Libraries | Umgesetzt: var soweit sinnvoll, neueste stabile Libraries ermittelt; offizieller SonarLint-Core 12.2.0.87867 mit SonarJava 8.45.0.59462 analysiert alle zehn Java-Produktions-/Testdateien mit 608 Standardregeln: 0 Befunde. Drei begründete methodenspezifische Ausnahmen betreffen ausschließlich stdout als Konsolen-UI und die feste main-Signatur. Spiellogik unverändert. |
+| 9 | SonarLint, Stil, var, aktuelle Libraries | Umgesetzt: var soweit sinnvoll, neueste stabile Libraries ermittelt; offizieller SonarLint-Core 12.2.0.87867 mit SonarJava 8.45.0.59462 analysiert alle elf Java-Dateien einschließlich des Build-Adapters mit 608 Standardregeln: 0 Befunde. Drei begründete methodenspezifische Ausnahmen betreffen ausschließlich stdout als Konsolen-UI und die feste main-Signatur. Spiellogik unverändert. |
 | 10 | Pünktliche private GitHub-Abgabe | Offen: GitHub-API bestätigt private=false für raphaelhuerzele/450-tictactest-mvk. Auf ausdrücklichen Wunsch erfolgt die Veröffentlichung im bestehenden öffentlichen Repository; die geforderte private Sichtbarkeit wird damit nicht erfüllt. Abgabetermin und Lehrpersonenzugriff sind nicht bekannt. |
 
 ## Tatsächliche Verifikation
@@ -34,7 +34,7 @@ gradlew.bat clean check jar --no-daemon --no-build-cache --rerun-tasks
 - PITest: 78 Mutationen erzeugt, alle 78 durch Tests erkannt; keine Timeouts und keine Mutationen ohne Coverage.
 - Ausführbares JAR mit den Eingaben 4, 8, 2, 6 gestartet: CROSS gewinnt erwartungsgemäß.
 - Coverage-Skript liefert 100.0; Bash-Syntaxprüfung erfolgreich.
-- SonarLint: zehn Dateien, 608 aktive Standardregeln, 0 Befunde. Der erste Lauf fand 14 Befunde und scheiterte erwartungsgemäß; nach Korrektur und begründeten Ausnahmen ist das Gate grün.
+- SonarLint: elf Dateien, 608 aktive Standardregeln, 0 Befunde. Der erste Lauf fand 14 Befunde und scheiterte erwartungsgemäß; nach Korrektur und begründeten Ausnahmen ist das Gate grün. Drei weitere Befunde im anschließend einbezogenen Build-Adapter wurden durch Refactoring und Diagnose-Logging behoben.
 - Bereits veröffentlichter CI-Nachweis: [CI für 585dd3c](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/40234378968); vollständiges Report-Artefakt heruntergeladen und kontrolliert.
 
 ## Verbleibende Abgabeschritte
