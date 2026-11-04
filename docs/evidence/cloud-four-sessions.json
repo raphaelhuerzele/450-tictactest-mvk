@@ -1,0 +1,8 @@
+{
+  "frontendVersion": "1.1.3",
+  "backendVersion": "1.1.3",
+  "simultaneousGames": 4,
+  "completeGame": "CROSS wins",
+  "invalidInput": "NumberFormatException ends the game; no shell follows",
+  "restart": "New game started through iframe reload"
+}

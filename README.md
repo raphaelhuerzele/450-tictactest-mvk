@@ -2,7 +2,7 @@
 
 ## Webapp-Aufträge 324
 
-Web-App: [TicTacTest im Browser](http://34.226.181.248/) (nur während der laufenden AWS-Lab-Session erreichbar; der Schul-Webfilter kann die IP blockieren).
+Web-App: [TicTacTest im Browser](http://184.197.155.101/) (nur während der laufenden AWS-Lab-Session erreichbar; der Schul-Webfilter kann die IP blockieren).
 
 Das unveränderte Release-JAR wird über ttyd auf EC2 im Browser gespielt. nginx liefert das getrennt versionierte Frontend aus. OpenTofu provisioniert die Infrastruktur; Releases installieren nur geänderte Komponenten über SSM und geprüfte GitHub-Release-Assets. Der Lab-Zugang ist zeitlich begrenzt.
 

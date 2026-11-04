@@ -45,7 +45,7 @@ Ein normaler main-Push hat diese Prüfungen, aber kein Cloud-Deployment ausgelö
 - Backend v1.1.0 aus dem unveränderten GitHub-Release-JAR per SSM installiert; Smoke-Partie erfolgreich, Dienst aktiv, lokaler HTTP-Endpunkt liefert 200 und Version 1.1.0.
 - Der externe HTTP-Check und Chrome-Test dieses Rechners scheitern am Schul-Webfilter (FortiGuard, Kategorie Unrated). Das ist kein erfolgreicher Cloud-Browsernachweis. Die Sperre wird nicht umgangen.
 - Drei temporäre AWS-Secrets mit ausdrücklicher Zustimmung verschlüsselt in GitHub Environment lab hinterlegt; keine Zugangsdaten in Git oder Terraform-Variablen.
-- Aktuelle Instanz: i-087b2be0146b92007. Bei der Bootstrap-Korrektur wurde die noch leere Instanz ersetzt; dieselbe Elastic IP blieb erhalten.
+- Instanz beim ersten Nachweis: i-087b2be0146b92007. Bei der Bootstrap-Korrektur wurde die noch leere Instanz ersetzt; dieselbe Elastic IP blieb erhalten.
 - Frontend v1.1.0 mit geprüftem ZIP installiert; HTTP liefert Version 1.1.0 und die HTML-Seite. Kein Neustart des Spieldiensts beim Frontend-Deploy.
 - OpenTofu plan nach dem App-Deploy: No changes. Your infrastructure matches the configuration.
 - EC2-Neustart ausgeführt: nginx und tictactest starten automatisch; beide Komponenten bleiben 1.1.0, JAR-SHA256 unverändert.
@@ -60,12 +60,44 @@ Ein normaler main-Push hat diese Prüfungen, aber kein Cloud-Deployment ausgelö
 | Zweiter Release ohne Infrastrukturänderung | [Manueller Dispatch auf v1.1.1 erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41809560344): beide Komponenten 1.1.1; gleiche EC2-ID und Elastic IP, abschließender OpenTofu-Plan ohne Änderungen. |
 | Öffentliche Browserprüfung | Chrome auf GitHub-Runner öffnet die echte EC2-Adresse, spielt 4, 8, 2, 6 bis CROSS gewinnt, prüft zweiten Tab mit abc und startet eine neue Partie. Versionen jeweils exakt 1.1.0 bzw. 1.1.1. JSON und Screenshots im Workflow-Artefakt deployment-evidence. |
 | main ohne Tag | [CI erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41809374606); der Push von 6bd5a22 startet kein Deployment. Deployments entstehen nur aus Release-Workflow oder bewusstem Dispatch. |
-| Backend-only / beide / Doku-only | Änderungserkennung durch automatisierte Tests geprüft. Beide Komponenten außerdem durch die zwei manuellen Dispatches real installiert. Ein eigenständiger automatischer Backend-only-Release wurde nicht zusätzlich erzeugt. |
+| Automatischer Backend-only-Release | [v1.1.2 erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41811630576): vorher v1.1.1; backend=true, frontend=false. Öffentlicher Chrome-Test: Backend 1.1.2, Frontend unverändert 1.1.1. |
+| Automatischer Release beider Komponenten | [v1.1.3 erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41812482632): vorher v1.1.2; backend=true, frontend=true. Öffentlicher Chrome-Test: beide Komponenten 1.1.3. |
+| Doku-only | Änderungserkennung durch automatisierte Tests geprüft; normale main-Pushes lösen kein Deployment aus. |
 
-Persistierte Cloud-Screenshots: [Rollback 1.1.0](evidence/cloud-console-v1.1.0.png), [aktuelle Version 1.1.1](evidence/cloud-console-v1.1.1.png).
+Persistierte Cloud-Screenshots: [Rollback 1.1.0](evidence/cloud-console-v1.1.0.png), [Version 1.1.1](evidence/cloud-console-v1.1.1.png), [kombinierter Release 1.1.3](evidence/cloud-console-v1.1.3.png), [vier Sitzungen nach Instanzersatz](evidence/cloud-four-sessions.png). [JSON-Protokoll der vier Sitzungen](evidence/cloud-four-sessions.json).
 
 Bei GitHub traten vorübergehende Serverfehler auf: main-Push mit commit_refs, Release-Upload mit HTTP 422 und Dispatch mit HTTP 502. Wiederholungen waren erfolgreich. Der erfolgreiche Release-Lauf enthält auch die Java-Tests, Coverage-/Mutation-Gates und SonarLint-Prüfung.
 
-Nicht durchgeführt: tatsächliches Lab-Session-Ende, vollständiges destroy/apply, ein separat veröffentlichter fachlich kaputter JAR-Release sowie ein absichtlich mit abgelaufenen Secrets gestarteter GitHub-Job. Der Neustart und die falsche Prüfsumme sind echte, oben abgegrenzte Tests. Für die offenen Experimente wird kein Erfolg behauptet.
+## Negativtest: korrekt gehashtes, kaputtes JAR
+
+SSM-Kommando `33e08c40-b1e6-4aa0-b552-02317d68b19a` führte den unveränderten produktiven Installationshelfer mit einer bewusst defekten JAR-Datei aus. Für diesen Test lieferte eine nur im Testprozess definierte curl-Funktion die lokale Fixture; es wurde kein kaputtes öffentliches Release veröffentlicht. Die Prüfsumme war korrekt, also wurde tatsächlich der Java-Preflight geprüft.
+
+Ergebnis: SHA256 OK, danach `Invalid or corrupt jarfile`. Abbruch innerhalb der gemessenen Sekunde (0 volle Sekunden); Symlink und Dienst-Startzeit unverändert, Dienst aktiv, HTTP-Version weiter 1.1.3. Es gab keine Umschaltung und keine Ausfallzeit; eine Wiederherstellung war nicht nötig. Der Fixture-Transport prüft nicht den GitHub-Download, der bereits durch die regulären Releases belegt ist.
+
+Die automatische Freigabeprüfung hatte die Veröffentlichung eines kaputten öffentlichen Releases wegen des möglichen automatischen Deployments abgelehnt. Ebenso wurde ein Überschreiben funktionierender GitHub-Secrets für den Credential-Test abgelehnt. Die sicheren Alternativen ändern weder öffentliche Release-Assets noch gespeicherte Secrets.
+
+## Authentifizierung und user_data-Änderung
+
+- [Authentifizierungs-Experiment erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41813097282): Ein nur im Testschritt ungültiger Session-Token führt vor App-Änderungen zum Fehler `AWS authentication failed. Renew all three Lab secrets, then manually redeploy the release.` Die erwartete fehlgeschlagene Teststufe wird geprüft; danach STS erfolgreich und regulärer Redeploy inklusive Browser grün. Gespeicherte Secrets unverändert. Es wurde ein ungültiger Token getestet, kein tatsächlicher Zeitablauf behauptet.
+- Einrichtung geändert: `Environment=LANG=C.UTF-8` im systemd-Dienst. OpenTofu plant und erstellt wegen user_data einen Ersatz: `i-087b2be0146b92007` wird `i-09215255eb3064554`. Elastic IP bleibt `34.226.181.248`; die App-Dateien auf dem alten Root-EBS gehen verloren.
+- cloud-init danach done, nginx aktiv, neue Umgebungsvariable vorhanden; vor dem Redeploy bewusst kein game.jar. Infrastruktur installiert keine App-Version.
+- Outputs in GitHub aktualisiert, [dieselben v1.1.3-Assets erneut deployt](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41813414102): beide Versionen 1.1.3. Chrome spielt erfolgreich, inklusive **vier gleichzeitig geöffneter Sitzungen**. Das ist ein Funktionsnachweis für vier Sitzungen auf t3.micro, kein Dauerlasttest.
+
+## Vollständiges Destroy/Apply
+
+Am 04.11.2026 wurden nach Prüfung des Accounts und der sechs eigenen State-Ressourcen sämtliche Projektressourcen entfernt und mit demselben Infrastrukturcode neu angelegt. Vorhandene Default-VPC, Subnetze und LabInstanceProfile sind Datenquellen und wurden nicht gelöscht.
+
+| Wert | Vorher | Nachher |
+| --- | --- | --- |
+| EC2 | i-09215255eb3064554 | i-0873d8927ea202ee8 |
+| Elastic-IP-Allocation | eipalloc-0d97eaa2584bfd49c | eipalloc-015eadf77451ef548 |
+| Öffentliche IP | 34.226.181.248 | 184.197.155.101 |
+| Security Group | sg-0e3a4f880bc3d4e24 | sg-0d1aeeac5af8c72ca |
+
+Destroy: sechs Ressourcen gelöscht. Apply: sechs Ressourcen neu erstellt. Root-EBS und lokale Release-Verzeichnisse gehören zur zerstörten Instanz; ein bloßes Apply stellt die App-Version nicht wieder her. Deshalb Outputs für GitHub aktualisieren, cloud-init/SSM abwarten und denselben veröffentlichten Release erneut deployen. Der README-Link wurde auf die neue Adresse aktualisiert.
+
+cloud-init meldet danach done; nginx aktiv, noch keine App-Version vorhanden (SSM `95d1b6f1-b88c-4b95-91be-866416ec00ec`). [Redeploy von v1.1.3 nach Destroy/Apply erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41813829011): Beide Versionen 1.1.3, vier gleichzeitige Spiele, vollständige Partie, ungültige Eingabe und Neustart im öffentlichen Chrome-Test erfolgreich. Abschließender OpenTofu-Plan: keine Änderungen. [JSON](evidence/cloud-after-destroy.json), [Screenshot](evidence/cloud-after-destroy.png).
+
+Noch nicht abgeschlossen: tatsächliches Ende und Neustart der AWS-Academy-Lab-Session. Dafür ist die angemeldete Learner-Lab-Oberfläche erforderlich; der normale EC2-Neustart wurde bereits separat geprüft.
 
 Ablauf, Secrets-Konzept und Promotion-Strategie: [deployment.md](deployment.md).
