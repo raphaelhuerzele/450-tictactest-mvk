@@ -43,6 +43,10 @@ try {
   evidence.backendVersion = await first.locator('#backend-version').innerText();
   assert.match(evidence.frontendVersion, /^\d+\.\d+\.\d+$/);
   assert.match(evidence.backendVersion, /^\d+\.\d+\.\d+$/);
+  if (process.env.EXPECTED_VERSION) {
+    assert.equal(evidence.frontendVersion, process.env.EXPECTED_VERSION);
+    assert.equal(evidence.backendVersion, process.env.EXPECTED_VERSION);
+  }
   if (process.platform === 'win32') {
     const processes = execFileSync('wsl', ['-d', 'Ubuntu', '--', 'ps', '-C', 'java', '-o', 'pid=,rss=,args='], { encoding: 'utf8' });
     evidence.jvmProcesses = processes.trim().split('\n').filter(line => line.includes('tictactest-'));

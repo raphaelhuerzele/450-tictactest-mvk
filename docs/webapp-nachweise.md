@@ -17,10 +17,24 @@ Stand: 04.11.2026. Dieses Protokoll trennt ausgeführte Prüfungen von noch nich
 | Infrastruktur | OpenTofu 1.13.2 init ohne Backend, fmt und validate erfolgreich; AWS-Provider 6.71.0 gelockt |
 | Änderungserkennung | Automatisierte Tests für Frontend-only, Backend-only, beide, Doku-only, ersten Release und erzwungenen Rollback erfolgreich |
 | Spieltests | 77 Java-Tests grün, 100 % Branch-Coverage, 78/78 Mutationen erkannt, SonarLint ohne Befunde |
-| Artefakt-Paketierung | Frontend-ZIP ohne config.js, Runtime-TAR, versioniertes JAR und SHA256SUMS erzeugt; finale Betriebsprüfung erfolgt nach Download aus dem neuen GitHub Release |
+| Artefakt-Paketierung | Release v1.1.0 veröffentlicht; JAR, Frontend-ZIP ohne config.js, Runtime-TAR und SHA256SUMS erneut von GitHub geladen und alle Prüfsummen erfolgreich geprüft |
+| Betrieb nur aus Release-Assets | Ausschließlich heruntergeladene v1.1.0-Assets gestartet, ohne Quellcode/Gradle: beide Versionen 1.1.0; Partie, ungültige Eingabe, Neustart und zwei Tabs bestehen erneut; zwei JVMs mit 44.176 und 43.920 KiB RSS |
 | Workflow-Syntax | Alle YAML-Dateien erfolgreich geparst |
 
 Lokale Browser-Evidenz: `build/web-evidence/browser.json` und `browser.png` (generiert, nicht Quellcode). Reproduzierbar mit `node scripts/web/browser-check.mjs`, wenn Playwright Core unter `.tools/browser` und ein lokaler Chrome verfügbar sind. Der Test baut das JAR nicht.
+
+Persistierter Screenshot des tatsächlichen v1.1.0-Tests: [Web-Konsole](evidence/web-console-v1.1.0.png).
+
+## Veröffentlichter Release und entfernte Prüfungen
+
+- [Release v1.1.0 mit fünf Assets](https://github.com/raphaelhuerzele/450-tictactest-mvk/releases/tag/v1.1.0)
+- [Release-Workflow erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41804161028): Build, Tests, JAR-Start und Veröffentlichung erfolgreich; `deploy / deploy` ausdrücklich **skipped**, weil AWS_DEPLOY_ENABLED noch nicht gesetzt ist.
+- [CI auf main erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41804158435)
+- [Infrastrukturvalidierung erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41804158417)
+- [Dev-Container-CI erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41804158464)
+- [Coverage-Veröffentlichung erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41804158514)
+
+Ein normaler main-Push hat diese Prüfungen, aber kein Cloud-Deployment ausgelöst. Der Cloud-Erfolg wird dadurch nicht behauptet. Ubuntu hatte lokal keine funktionierende DNS-Auflösung; die beiden gepinnten Runtime-Dateien wurden deshalb über Windows geladen, anhand der festgehaltenen SHA256 geprüft und als Runtime-Cache verwendet. Es wurden keine Spielartefakte für den Betriebsnachweis lokal neu gebaut.
 
 ## Noch offen: echte AWS-Nachweise
 

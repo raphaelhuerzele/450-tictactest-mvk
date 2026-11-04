@@ -4,6 +4,8 @@
 
 Ein Release entsteht nur durch einen bewusst erstellten Git-Tag im Format `vMAJOR.MINOR.PATCH`. Ein normaler Push nach `main` startet kein Release. Dadurch ist jede veröffentlichte Version genau einem geprüften Commit zugeordnet.
 
+Seit v1.1.0 enthält der Release neben dem JAR auch `tictactest-frontend-VERSION.zip`, `tictactest-runtime-VERSION.tar.gz` und `SHA256SUMS`. Das Frontend bleibt buildlos; das Archiv enthält die automatisch erzeugte Frontend-Version, aber keine umgebungsspezifische `config.js`. Der Release-Workflow ruft nach erfolgreicher Veröffentlichung das wiederverwendbare Deployment auf. Es bleibt bis zur Einrichtung gültiger Lab-Zugänge über die Repository-Variable `AWS_DEPLOY_ENABLED` deaktiviert. Details und selektive Pfadregeln stehen in [docs/deployment.md](docs/deployment.md).
+
 ```text
 Änderungen und CHANGELOG nach main mergen
                     ↓
