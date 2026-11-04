@@ -1,0 +1,72 @@
+name: Deploy released TicTacTest
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+      AWS_SESSION_TOKEN:
+        required: false
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Published release to redeploy, e.g. v1.1.0 (both components)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# A release made by GITHUB_TOKEN does not trigger a release-event workflow.
+# The release workflow therefore calls this reusable workflow explicitly.
+concurrency:
+  group: tictactest-lab-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || vars.AWS_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: lab
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Deploy and verify selected release artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          FORCE_DEPLOY: ${{ github.event_name == 'workflow_dispatch' }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          INSTANCE_ID: ${{ vars.INSTANCE_ID }}
+          ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
+          FRONTEND_BUCKET: ${{ vars.FRONTEND_BUCKET }}
+          BACKEND_VERSION_URL: ${{ vars.BACKEND_VERSION_URL }}
+          FRONTEND_URL: ${{ vars.FRONTEND_URL }}
+        run: |
+          if [ "$FORCE_DEPLOY" = true ]; then
+            node scripts/web/deploy.mjs "$RELEASE_TAG" --force
+          else
+            node scripts/web/deploy.mjs "$RELEASE_TAG"
+          fi
+      - name: Save deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: deployment-evidence
+          path: build/deployment/
+          if-no-files-found: warn

@@ -110,3 +110,27 @@ tasks.register('sonarLint', JavaExec) {
 }
 
 check.dependsOn 'sonarLint'
+
+def frontendVersionFile = layout.buildDirectory.file('frontend-version/frontend-version.txt')
+tasks.register('writeFrontendVersion') {
+    inputs.property('releaseVersion', project.version)
+    outputs.file frontendVersionFile
+    doLast {
+        def target = frontendVersionFile.get().asFile
+        target.parentFile.mkdirs()
+        target.text = "${project.version}\n"
+    }
+}
+tasks.register('frontendArchive', Zip) {
+    dependsOn 'writeFrontendVersion'
+    archiveFileName = "tictactest-frontend-${project.version}.zip"
+    destinationDirectory = layout.buildDirectory.dir('distributions')
+    from('frontend') { exclude 'config.js', 'frontend-version.txt' }
+    from frontendVersionFile
+}
+tasks.register('runtimeArchive', Tar) {
+    archiveFileName = "tictactest-runtime-${project.version}.tar.gz"
+    compression = Compression.GZIP
+    destinationDirectory = layout.buildDirectory.dir('distributions')
+    from('ops') { include 'local/**', 'runtime/**' }
+}

@@ -1,0 +1,6 @@
+aws_region  = "us-east-1"
+environment = "lab"
+# Resolve once with the SSM command in docs/deployment.md; paste the resulting ID.
+ami_id = "ami-REPLACE_WITH_AMAZON_LINUX_2023_X86_64"
+# Optional: restrict HTTP to your own/classroom public IP range.
+http_cidrs = ["0.0.0.0/0"]

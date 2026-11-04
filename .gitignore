@@ -21,3 +21,17 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 bin/
+
+# OpenTofu state, credentials and environment-specific inputs never belong in Git.
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+infra/outputs.json
+crash.log
+frontend/config.js
+frontend/frontend-version.txt
+!**/.terraform.lock.hcl

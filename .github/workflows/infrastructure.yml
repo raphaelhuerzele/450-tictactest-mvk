@@ -1,0 +1,23 @@
+name: Infrastructure validation
+on:
+  push:
+    paths: ['infra/**', 'ops/**', 'frontend/**', 'scripts/web/**', '.github/workflows/infrastructure.yml']
+  pull_request:
+    paths: ['infra/**', 'ops/**', 'frontend/**', 'scripts/web/**', '.github/workflows/infrastructure.yml']
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: '1.13.2'
+      - name: Validate without AWS credentials or infrastructure changes
+        run: |
+          tofu -chdir=infra fmt -check
+          tofu -chdir=infra init -backend=false
+          tofu -chdir=infra validate
+          for file in ops/runtime/*.sh ops/local/*.sh; do bash -n "$file"; done
+          node --test scripts/web/*.test.mjs

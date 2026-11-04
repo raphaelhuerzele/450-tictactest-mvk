@@ -29,6 +29,9 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      - name: Test release change detection
+        run: node --test scripts/web/*.test.mjs
+
       - name: Run tests, branch coverage gate, mutation testing and SonarLint
         run: ./gradlew clean check jar --no-daemon
 

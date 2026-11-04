@@ -1,0 +1,32 @@
+[Unit]
+Description=TicTacTest terminal (one bounded JVM per connection)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/tictactest/current/game.jar
+
+[Service]
+Type=simple
+User=tictactest
+Group=tictactest
+WorkingDirectory=/opt/tictactest
+ExecStart=/opt/tictactest/tools/ttyd --interface 127.0.0.1 --port 7681 --base-path /terminal --writable --check-origin --max-clients 4 -t disableReconnect=true -t disableResizeOverlay=true -t fontSize=18 -t titleFixed=TicTacTest /opt/tictactest/tools/java/bin/java -Xms16m -Xmx64m -XX:MaxMetaspaceSize=64m -XX:ReservedCodeCacheSize=32m -XX:+UseSerialGC -XX:ActiveProcessorCount=1 -jar /opt/tictactest/current/game.jar
+Restart=always
+RestartSec=3
+KillMode=control-group
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+MemoryMax=640M
+TasksMax=96
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target

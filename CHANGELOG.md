@@ -4,7 +4,16 @@ Alle relevanten Änderungen an TicTacTest werden in dieser Datei dokumentiert. D
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-04
+
 ### Added
+
+- Statisches Web-Frontend mit eingebettetem ttyd-Terminal und getrennten Versionsanzeigen.
+- Versionierte Frontend- und Runtime-Archive sowie SHA256SUMS als Release-Assets.
+- Reproduzierbare lokale ttyd-/Corretto-Laufzeit mit einem unveränderten Release-JAR.
+- OpenTofu-Konfiguration für EC2, feste Elastic IP, Instance Profile, S3-Hosting und geschützten Artefakt-Bucket.
+- Release-basiertes, komponentenweises Deployment über S3 und SSM, HTTP-Versionsprüfungen und manueller Rollback.
+- Anleitungen und getrennte Nachweise für die Webapp-Aufträge 1 bis 3.
 
 - Automatisches SonarLint-Gate mit den offiziellen Java-Analyzern, allen aktiven Standardregeln und archiviertem Prüfbericht.
 - Optimaler `PerfectPlayer` mit Negamax und unabhängiger Prüfung aller 4.520 erreichbaren nichtterminalen Spielstellungen.

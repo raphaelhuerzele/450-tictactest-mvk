@@ -1,5 +1,14 @@
 # 450-tictactest-mvk
 
+## Webapp-Aufträge 324
+
+Das unveränderte Release-JAR kann über ttyd im Browser gespielt werden. Neue Releases liefern zusätzlich ein buildloses Frontend und ein Runtime-Archiv. AWS wird getrennt mit OpenTofu provisioniert; ein Release deployt nur geänderte Komponenten über S3/SSM. Ohne eingerichtete Lab-Zugänge bleibt das automatische Cloud-Deployment ausdrücklich deaktiviert.
+
+- [Web-Konsole lokal und Versionsabfrage](docs/webkonsole.md)
+- [Infrastruktur, manuelle/automatische Deployments, Secrets und Rollback](docs/deployment.md)
+- [Tatsächliche Nachweise und offene AWS-Experimente](docs/webapp-nachweise.md)
+- `infra/`: OpenTofu, `frontend/`: HTML/CSS/JS, `ops/`: Runtime und Betrieb, `scripts/web/`: Release-/Deploy-Werkzeuge
+
 TicTacToe-Testprojekt für Modul 450 mit JUnit Jupiter, AssertJ, Pioneer, QuickTheories, parametrisierten Tests, JaCoCo, PITest, GitHub Actions und Dev Container. Der zusätzliche `PerfectPlayer` trifft optimale Entscheidungen und wird auf allen 4.520 erreichbaren nichtterminalen Spielstellungen geprüft.
 
 ## Lokal testen
