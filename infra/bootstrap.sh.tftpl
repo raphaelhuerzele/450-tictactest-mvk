@@ -1,14 +1,17 @@
 #!/bin/bash
 set -euo pipefail
-dnf install -y nginx python3 curl tar gzip unzip awscli-2
+dnf install -y nginx python3 curl-minimal tar gzip unzip awscli-2
 id tictactest >/dev/null 2>&1 || useradd --system --home /opt/tictactest --shell /sbin/nologin tictactest
-install -d -m 755 /opt/tictactest/tools /opt/tictactest/releases /opt/tictactest/bootstrap
+install -d -m 755 /opt/tictactest/tools /opt/tictactest/releases /opt/tictactest/bootstrap /opt/tictactest/frontend /etc/tictactest
 printf '%s' '${installer}' | base64 -d > /opt/tictactest/bootstrap/install-tools.sh
 printf '%s' '${versions}' | base64 -d > /opt/tictactest/bootstrap/versions.env
 bash /opt/tictactest/bootstrap/install-tools.sh /opt/tictactest/tools
 printf '%s' '${unit}' | base64 -d > /etc/systemd/system/tictactest.service
 printf '%s' '${deployer}' | base64 -d > /usr/local/sbin/tictactest-deploy
 chmod 750 /usr/local/sbin/tictactest-deploy
+printf '%s' '${frontend_deployer}' | base64 -d > /usr/local/sbin/tictactest-deploy-frontend
+chmod 750 /usr/local/sbin/tictactest-deploy-frontend
+printf '%s' '${frontend_config}' | base64 -d > /etc/tictactest/config.js
 # Replace the distribution default server to avoid duplicate default_server entries.
 cat > /etc/nginx/nginx.conf <<'NGINX'
 user nginx;

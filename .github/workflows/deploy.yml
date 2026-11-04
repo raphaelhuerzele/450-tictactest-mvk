@@ -53,8 +53,6 @@ jobs:
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: ${{ vars.AWS_REGION }}
           INSTANCE_ID: ${{ vars.INSTANCE_ID }}
-          ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
-          FRONTEND_BUCKET: ${{ vars.FRONTEND_BUCKET }}
           BACKEND_VERSION_URL: ${{ vars.BACKEND_VERSION_URL }}
           FRONTEND_URL: ${{ vars.FRONTEND_URL }}
         run: |

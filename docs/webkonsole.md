@@ -52,7 +52,7 @@ Die ttyd-Kommandozeile enthält **direkt Java**, niemals `bash`, `sh` oder `logi
 
 Vier JVMs benötigen mehr als viermal ihren Heap: Metaspace, Thread-Stacks, Code-Cache, ttyd, Betriebssystem und SSM-Agent kommen hinzu. Pro JVM werden Heap (64 MiB), Metaspace (64 MiB), Code-Cache (32 MiB) und CPU-Anzahl begrenzt; die Dienstgruppe erhält zusätzlich `MemoryMax=640M`. Das ist eine Begrenzung, kein pauschaler Nachweis, dass jede 1-GB-Instanz vier Lastspitzen verkraftet. Zwei gleichzeitige Tabs und Prozessspeicher werden im Testprotokoll separat dokumentiert.
 
-Das Lab verwendet bewusst HTTP ohne Zugangsdaten und ohne persönliche Daten; S3 Website und iframe haben damit keinen HTTPS/HTTP-Mixed-Content-Konflikt. Für einen dauerhaften öffentlichen Betrieb wären HTTPS, Domain, Zugriffsschutz und gegebenenfalls WAF/Rate-Limits nötig. Ein HTTPS-Frontend darf kein HTTP-Terminal einbetten.
+Das Lab verwendet bewusst HTTP ohne Zugangsdaten und ohne persönliche Daten; nginx-Frontend und iframe haben damit keinen HTTPS/HTTP-Mixed-Content-Konflikt. Für einen dauerhaften öffentlichen Betrieb wären HTTPS, Domain, Zugriffsschutz und gegebenenfalls WAF/Rate-Limits nötig. Ein HTTPS-Frontend darf kein HTTP-Terminal einbetten.
 
 ## Release-Zugehörigkeit
 

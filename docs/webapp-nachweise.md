@@ -36,20 +36,17 @@ Persistierter Screenshot des tatsächlichen v1.1.0-Tests: [Web-Konsole](evidence
 
 Ein normaler main-Push hat diese Prüfungen, aber kein Cloud-Deployment ausgelöst. Der Cloud-Erfolg wird dadurch nicht behauptet. Ubuntu hatte lokal keine funktionierende DNS-Auflösung; die beiden gepinnten Runtime-Dateien wurden deshalb über Windows geladen, anhand der festgehaltenen SHA256 geprüft und als Runtime-Cache verwendet. Es wurden keine Spielartefakte für den Betriebsnachweis lokal neu gebaut.
 
-## Noch offen: echte AWS-Nachweise
+## AWS-Prüfung am 04.11.2026
 
-Die vorhandene AWS-Anmeldung wurde mit STS geprüft und als `InvalidClientTokenId` zurückgewiesen. Es wurde kein erfolgreicher AWS-Zugriff, kein apply, kein EC2-Deployment und kein Rollback behauptet. Das GitHub-Repository besitzt bisher keine eingerichteten Lab-Deploy-Secrets/Variables.
+- STS-Anmeldung mit erneuerten temporären Lab-Zugangsdaten erfolgreich.
+- OpenTofu apply erfolgreich: EC2, Elastic IP 34.226.181.248, HTTP-Sicherheitsgruppe und vorhandenes LabInstanceProfile. Keine neuen IAM-Rollen.
+- S3-Variante durch eine explizite Organisationssperre für GetBucketObjectLockConfiguration blockiert. Die nachweislich leeren Test-Buckets wurden entfernt; das erlaubte EC2/nginx-Hosting ersetzt S3.
+- cloud-init meldet done; nginx ist aktiv. Amazon Linux benötigt curl-minimal statt curl.
+- Backend v1.1.0 aus dem unveränderten GitHub-Release-JAR per SSM installiert; Smoke-Partie erfolgreich, Dienst aktiv, lokaler HTTP-Endpunkt liefert 200 und Version 1.1.0.
+- Der externe HTTP-Check und Chrome-Test dieses Rechners scheitern am Schul-Webfilter (FortiGuard, Kategorie Unrated). Das ist kein erfolgreicher Cloud-Browsernachweis. Die Sperre wird nicht umgangen.
+- Drei temporäre AWS-Secrets mit ausdrücklicher Zustimmung verschlüsselt in GitHub Environment lab hinterlegt; keine Zugangsdaten in Git oder Terraform-Variablen.
+- Aktuelle Instanz: i-087b2be0146b92007. Bei der Bootstrap-Korrektur wurde die noch leere Instanz ersetzt; dieselbe Elastic IP blieb erhalten.
 
-| Geforderter Nachweis | Status / nachzuholende Beobachtung |
-| --- | --- |
-| Release A auf EC2 und S3 | Offen: gültiges Lab-Profil, plan/apply, Outputs und manuellen Deploy ausführen, im Browser spielen |
-| Release B ohne Infrastrukturänderung | Offen: zweite Veröffentlichung deployen, Instanz-ID gleich, tofu plan Exitcode 0 |
-| Session-Ende/Neustart | Offen: gleiche Elastic IP, systemd aktiv, gleiche Backend-Version prüfen |
-| Änderung an user_data | Offen: erwarteten Instanzersatz im Plan prüfen; EIP bleibt, Version muss nach Ersatz erneut deployt werden |
-| Destroy/Apply | Offen: ausdrücklich gewollter destruktiver Lab-Test; neue Outputs übernehmen und dieselben Assets erneut deployen |
-| Vier selektive Fälle | Offen: Frontend-only, Backend-only, beide und Push ohne Tag mit echten AWS-Workflow-Links dokumentieren |
-| Rollback | Offen: zwei Web-Releases bereitstellen, älteren Release per Dispatch installieren und beide Versionen prüfen |
-| Kaputtes JAR | Offen: separaten bewusst kaputten Testrelease verwenden, rote Prüfung und Erhalt/Wiederherstellung der letzten guten Version messen |
-| Abgelaufene Pipeline-Credentials | Offen: echten fehlgeschlagenen AWS-Job sowie erfolgreichen Secret-Refresh und manuellen Retry nachweisen |
+Ausstehende reale Experimente werden nach Durchführung ergänzt: zweiter Release ohne Infrastrukturänderung, selektive automatische Deployments, manueller Rollback, Neustart, kaputtes JAR und Credential-Refresh. Session-Ende und destroy/apply sind nicht ausgeführt. Die lokale Browserprüfung aus Release-Assets ist oben dokumentiert; sie ersetzt keinen Cloud-Browsernachweis.
 
-Anleitungen, erwartetes Verhalten und Secrets-Konzept stehen in [deployment.md](deployment.md). Diese offenen Punkte benötigen eine laufende Learner-Lab-Session und werden nicht durch simulierte Erfolgsberichte ersetzt.
+Ablauf, Secrets-Konzept und Promotion-Strategie: [deployment.md](deployment.md).

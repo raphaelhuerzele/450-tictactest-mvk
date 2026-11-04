@@ -47,7 +47,8 @@ try {
     assert.equal(evidence.frontendVersion, process.env.EXPECTED_VERSION);
     assert.equal(evidence.backendVersion, process.env.EXPECTED_VERSION);
   }
-  if (process.platform === 'win32') {
+  const frontendHost = new URL(process.env.FRONTEND_URL ?? 'http://localhost:8000').hostname;
+  if (process.platform === 'win32' && ['localhost', '127.0.0.1'].includes(frontendHost)) {
     const processes = execFileSync('wsl', ['-d', 'Ubuntu', '--', 'ps', '-C', 'java', '-o', 'pid=,rss=,args='], { encoding: 'utf8' });
     evidence.jvmProcesses = processes.trim().split('\n').filter(line => line.includes('tictactest-'));
     assert.equal(evidence.jvmProcesses.length, 2, 'Two tabs must have two independent Java processes');

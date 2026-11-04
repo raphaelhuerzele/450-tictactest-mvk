@@ -2,7 +2,9 @@
 
 ## Webapp-Aufträge 324
 
-Das unveränderte Release-JAR kann über ttyd im Browser gespielt werden. Neue Releases liefern zusätzlich ein buildloses Frontend und ein Runtime-Archiv. AWS wird getrennt mit OpenTofu provisioniert; ein Release deployt nur geänderte Komponenten über S3/SSM. Ohne eingerichtete Lab-Zugänge bleibt das automatische Cloud-Deployment ausdrücklich deaktiviert.
+Web-App: [TicTacTest im Browser](http://34.226.181.248/) (nur während der laufenden AWS-Lab-Session erreichbar; der Schul-Webfilter kann die IP blockieren).
+
+Das unveränderte Release-JAR wird über ttyd auf EC2 im Browser gespielt. nginx liefert das getrennt versionierte Frontend aus. OpenTofu provisioniert die Infrastruktur; Releases installieren nur geänderte Komponenten über SSM und geprüfte GitHub-Release-Assets. Der Lab-Zugang ist zeitlich begrenzt.
 
 - [Web-Konsole lokal und Versionsabfrage](docs/webkonsole.md)
 - [Infrastruktur, manuelle/automatische Deployments, Secrets und Rollback](docs/deployment.md)

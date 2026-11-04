@@ -4,6 +4,18 @@ Alle relevanten Änderungen an TicTacTest werden in dieser Datei dokumentiert. D
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-04
+
+### Fixed
+
+- Frontend auf EC2 mit nginx statt S3 bereitstellen, da das Learner Lab den erforderlichen S3-Provider-Zugriff sperrt.
+- Release-Assets mit SHA256 über SSM installieren und Frontend unabhängig vom Spielprozess aktivieren.
+- Amazon-Linux-Bootstrap mit dem vorinstallierten curl-minimal kompatibel machen.
+
+### Changed
+
+- Die Web-Konsole erklärt die unabhängigen Spielsitzungen.
+
 ## [1.1.0] - 2026-11-04
 
 ### Added
