@@ -61,10 +61,19 @@ jobs:
           else
             node scripts/web/deploy.mjs "$RELEASE_TAG"
           fi
+      - name: Check the public console in Chrome
+        env:
+          FRONTEND_URL: ${{ vars.FRONTEND_URL }}
+          BROWSER_EXECUTABLE: /usr/bin/google-chrome
+        run: |
+          npm install --prefix .tools/browser --no-save --package-lock=false playwright-core@1.64.1
+          node scripts/web/browser-check.mjs
       - name: Save deployment evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: deployment-evidence
-          path: build/deployment/
+          path: |
+            build/deployment/
+            build/web-evidence/
           if-no-files-found: warn

@@ -46,6 +46,10 @@ Ein normaler main-Push hat diese Prüfungen, aber kein Cloud-Deployment ausgelö
 - Der externe HTTP-Check und Chrome-Test dieses Rechners scheitern am Schul-Webfilter (FortiGuard, Kategorie Unrated). Das ist kein erfolgreicher Cloud-Browsernachweis. Die Sperre wird nicht umgangen.
 - Drei temporäre AWS-Secrets mit ausdrücklicher Zustimmung verschlüsselt in GitHub Environment lab hinterlegt; keine Zugangsdaten in Git oder Terraform-Variablen.
 - Aktuelle Instanz: i-087b2be0146b92007. Bei der Bootstrap-Korrektur wurde die noch leere Instanz ersetzt; dieselbe Elastic IP blieb erhalten.
+- Frontend v1.1.0 mit geprüftem ZIP installiert; HTTP liefert Version 1.1.0 und die HTML-Seite. Kein Neustart des Spieldiensts beim Frontend-Deploy.
+- OpenTofu plan nach dem App-Deploy: No changes. Your infrastructure matches the configuration.
+- EC2-Neustart ausgeführt: nginx und tictactest starten automatisch; beide Komponenten bleiben 1.1.0, JAR-SHA256 unverändert.
+- Absichtlich falschen JAR-Digest getestet: Deployment scheitert vor dem Umschalten; aktive Version und Dienst bleiben erhalten. Das ersetzt keinen Test mit einem gültig signierten, aber fachlich kaputten JAR.
 
 Ausstehende reale Experimente werden nach Durchführung ergänzt: zweiter Release ohne Infrastrukturänderung, selektive automatische Deployments, manueller Rollback, Neustart, kaputtes JAR und Credential-Refresh. Session-Ende und destroy/apply sind nicht ausgeführt. Die lokale Browserprüfung aus Release-Assets ist oben dokumentiert; sie ersetzt keinen Cloud-Browsernachweis.
 
