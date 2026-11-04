@@ -51,6 +51,21 @@ Ein normaler main-Push hat diese Prüfungen, aber kein Cloud-Deployment ausgelö
 - EC2-Neustart ausgeführt: nginx und tictactest starten automatisch; beide Komponenten bleiben 1.1.0, JAR-SHA256 unverändert.
 - Absichtlich falschen JAR-Digest getestet: Deployment scheitert vor dem Umschalten; aktive Version und Dienst bleiben erhalten. Das ersetzt keinen Test mit einem gültig signierten, aber fachlich kaputten JAR.
 
-Ausstehende reale Experimente werden nach Durchführung ergänzt: zweiter Release ohne Infrastrukturänderung, selektive automatische Deployments, manueller Rollback, Neustart, kaputtes JAR und Credential-Refresh. Session-Ende und destroy/apply sind nicht ausgeführt. Die lokale Browserprüfung aus Release-Assets ist oben dokumentiert; sie ersetzt keinen Cloud-Browsernachweis.
+## Release-Deployment und öffentliche Browser-Abnahme
+
+| Prüfung | Gemessener Nachweis |
+| --- | --- |
+| Automatischer Frontend-only-Release | [v1.1.1-Workflow erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41809066109): vorher v1.1.0; backend=false, frontend=true. Frontend danach 1.1.1, Backend weiterhin 1.1.0. Dienst-Startzeit unverändert 09:39:31 UTC. |
+| Gezielter Rollback | [Manueller Dispatch auf v1.1.0 erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41809429976): beide Komponenten 1.1.0, öffentliche Chrome-Abnahme erfolgreich. |
+| Zweiter Release ohne Infrastrukturänderung | [Manueller Dispatch auf v1.1.1 erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41809560344): beide Komponenten 1.1.1; gleiche EC2-ID und Elastic IP, abschließender OpenTofu-Plan ohne Änderungen. |
+| Öffentliche Browserprüfung | Chrome auf GitHub-Runner öffnet die echte EC2-Adresse, spielt 4, 8, 2, 6 bis CROSS gewinnt, prüft zweiten Tab mit abc und startet eine neue Partie. Versionen jeweils exakt 1.1.0 bzw. 1.1.1. JSON und Screenshots im Workflow-Artefakt deployment-evidence. |
+| main ohne Tag | [CI erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41809374606); der Push von 6bd5a22 startet kein Deployment. Deployments entstehen nur aus Release-Workflow oder bewusstem Dispatch. |
+| Backend-only / beide / Doku-only | Änderungserkennung durch automatisierte Tests geprüft. Beide Komponenten außerdem durch die zwei manuellen Dispatches real installiert. Ein eigenständiger automatischer Backend-only-Release wurde nicht zusätzlich erzeugt. |
+
+Persistierte Cloud-Screenshots: [Rollback 1.1.0](evidence/cloud-console-v1.1.0.png), [aktuelle Version 1.1.1](evidence/cloud-console-v1.1.1.png).
+
+Bei GitHub traten vorübergehende Serverfehler auf: main-Push mit commit_refs, Release-Upload mit HTTP 422 und Dispatch mit HTTP 502. Wiederholungen waren erfolgreich. Der erfolgreiche Release-Lauf enthält auch die Java-Tests, Coverage-/Mutation-Gates und SonarLint-Prüfung.
+
+Nicht durchgeführt: tatsächliches Lab-Session-Ende, vollständiges destroy/apply, ein separat veröffentlichter fachlich kaputter JAR-Release sowie ein absichtlich mit abgelaufenen Secrets gestarteter GitHub-Job. Der Neustart und die falsche Prüfsumme sind echte, oben abgegrenzte Tests. Für die offenen Experimente wird kein Erfolg behauptet.
 
 Ablauf, Secrets-Konzept und Promotion-Strategie: [deployment.md](deployment.md).

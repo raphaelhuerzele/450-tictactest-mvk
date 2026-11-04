@@ -111,6 +111,8 @@ Frontend: Derselbe Ablauf mit dem Release-ZIP, Pfadvalidierung und Versionsdatei
 
 Globales GitHub-`concurrency` serialisiert alle automatischen und manuellen Deployments; `flock` schützt zusätzlich die Server-Helfer. Das Warten auf SSM ist auf 90 Versuche mit zwei Sekunden Pause begrenzt, die HTTP-Prüfung auf 30 Versuche mit je vier Sekunden Timeout und zwei Sekunden Pause. Bei Ablauf scheitert der Job. Backend-Neustarts beenden laufende Spiele; Blue/Green mit Draining vorhandener WebSockets wäre eine mögliche spätere Zero-Downtime-Lösung.
 
+Nach dem Deployment öffnet ein echter Chrome auf dem GitHub-Runner die öffentliche Web-Konsole. Playwright Core 1.64.1 prüft eine vollständige Partie, zwei getrennte Tabs, ungültige Eingabe und Neustart. JSON-Protokoll und Screenshot werden zusammen mit der Deployment-Auswahl als Workflow-Artefakt gespeichert. Unterschiedliche Frontend-/Backend-Versionen sind bei selektiven Releases erlaubt; die exakte Zielversion jeder deployten Komponente wurde bereits vorher per HTTP geprüft.
+
 ## Rollback, Fehler und Wiederaufbau
 
 ```bash
