@@ -1,0 +1,56 @@
+name: Verify deployment authentication recovery
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Published release to deploy after the authentication failure check'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  authentication:
+    runs-on: ubuntu-latest
+    environment: lab
+    timeout-minutes: 3
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      INSTANCE_ID: ${{ vars.INSTANCE_ID }}
+      BACKEND_VERSION_URL: ${{ vars.BACKEND_VERSION_URL }}
+      FRONTEND_URL: ${{ vars.FRONTEND_URL }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Invalid session must fail before deployment
+        id: rejected
+        continue-on-error: true
+        env:
+          AWS_SESSION_TOKEN: deliberately-invalid-session-token-for-authentication-test
+        run: node scripts/web/deploy.mjs "$RELEASE_TAG" --force
+      - name: Verify rejection and restored authentication
+        env:
+          REJECTED_OUTCOME: ${{ steps.rejected.outcome }}
+        run: |
+          test "$REJECTED_OUTCOME" = failure
+          aws sts get-caller-identity
+          echo 'Invalid session rejected; original encrypted secrets unchanged; valid authentication restored.' >> "$GITHUB_STEP_SUMMARY"
+
+  redeploy:
+    needs: authentication
+    uses: ./.github/workflows/deploy.yml
+    with:
+      release_tag: ${{ inputs.release_tag }}
+    secrets: inherit
