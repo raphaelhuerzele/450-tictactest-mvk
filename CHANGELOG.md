@@ -4,6 +4,14 @@ Alle relevanten Änderungen an TicTacTest werden in dieser Datei dokumentiert. D
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-11-04
+
+### Changed
+
+- JAR-Manifest um Titel und Release-Version ergänzen, damit das Backend-Artefakt selbst eindeutig identifizierbar ist.
+- Im Frontend erklären, warum getrennt deployte Komponenten unterschiedliche Versionsnummern anzeigen können.
+- Beide Komponenten gemeinsam als Nachweis des kombinierten Release-Deployments aktualisieren.
+
 ## [1.1.2] - 2026-11-04
 
 ### Changed
