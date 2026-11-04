@@ -1,6 +1,6 @@
 # Webapp-Aufträge: tatsächlicher Prüfstand
 
-Stand: 04.11.2026. Dieses Protokoll trennt ausgeführte Prüfungen von noch nicht durchgeführten AWS-Experimenten. Eine gültige Konfiguration ist kein Nachweis einer laufenden Cloud-Umgebung.
+Stand: 04.11.2026. Dieses Protokoll dokumentiert die ausgeführten lokalen Prüfungen und AWS-Experimente einschließlich beobachteter Einschränkungen. Eine gültige Konfiguration allein ist kein Nachweis einer laufenden Cloud-Umgebung.
 
 ## Lokal ausgeführt
 
@@ -98,6 +98,16 @@ Destroy: sechs Ressourcen gelöscht. Apply: sechs Ressourcen neu erstellt. Root-
 
 cloud-init meldet danach done; nginx aktiv, noch keine App-Version vorhanden (SSM `95d1b6f1-b88c-4b95-91be-866416ec00ec`). [Redeploy von v1.1.3 nach Destroy/Apply erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41813829011): Beide Versionen 1.1.3, vier gleichzeitige Spiele, vollständige Partie, ungültige Eingabe und Neustart im öffentlichen Chrome-Test erfolgreich. Abschließender OpenTofu-Plan: keine Änderungen. [JSON](evidence/cloud-after-destroy.json), [Screenshot](evidence/cloud-after-destroy.png).
 
-Noch nicht abgeschlossen: tatsächliches Ende und Neustart der AWS-Academy-Lab-Session. Dafür ist die angemeldete Learner-Lab-Oberfläche erforderlich; der normale EC2-Neustart wurde bereits separat geprüft.
+## Echter Learner-Lab-Sessionwechsel
+
+Nach dem vom Benutzer durchgeführten Sessionwechsel wurden neue temporäre Credentials aus der Session vom 04.11.2026, 11:30:35 MEZ, verwendet. AWS bestätigte dieselbe Instanz `i-0873d8927ea202ee8` und dieselbe Elastic IP `184.197.155.101`, zunächst allerdings im Zustand `stopped`. Das Starten der Lab-Session allein hatte die EC2-Instanz in dieser Beobachtung nicht gestartet.
+
+Die vorhandene Instanz wurde deshalb einmal mit `aws ec2 start-instances` gestartet. Danach liefen nginx und tictactest automatisch, ohne erneute Installation der App. SSM `1fdb2031-63f8-4029-bec5-335f8cf511a3` bestätigte beide Dienste aktiv und beide Versionen 1.1.3. JAR-SHA256 `5573bb423737c0d82b8caba6da5fdcda012d32d467f8bc71421b5139625fdf3f` stimmt mit dem veröffentlichten Release überein. Boot um 11:35:37 MEZ, Dienst aktiv ab 11:35:43 MEZ.
+
+Ergebnis: Adresse, EBS-Inhalt und App-Version überleben das Session-Ende; systemd startet die App beim EC2-Boot selbständig. Das Lab hat die gestoppte Instanz hier nicht selbst gestartet. Dieser notwendige Infrastruktur-Start wird ausdrücklich nicht als vollautomatischer Lab-Wiederanlauf dargestellt.
+
+Alle drei neuen Credentials wurden anschließend gemeinsam als verschlüsselte Secrets in GitHub Environment lab erneuert, ausschließlich aus dem Prozessspeicher per stdin. Keine Zugangsdaten oder SSH-Schlüssel wurden in Dateien des Repositorys gespeichert. Die vormals wegen GitHub-Serverfehlern fehlgeschlagene [Coverage-Veröffentlichung ist ebenfalls erfolgreich](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41814112984).
+
+Der anschließende [reguläre Redeploy mit den neuen Session-Secrets](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/41815435898) ist erfolgreich: beide Versionen 1.1.3, vier gleichzeitige Spiele, vollständige Partie, Fehlerbehandlung und Neustart im öffentlichen Browser geprüft. [Browser-Protokoll](evidence/cloud-after-session.json). OpenTofu meldet nach dem Sessionwechsel keine Änderungen. Der Redeploy dient hier dem Nachweis der erneuerten Pipeline-Anmeldung; für den vorher bereits bestätigten App-Wiederanlauf war er nicht nötig.
 
 Ablauf, Secrets-Konzept und Promotion-Strategie: [deployment.md](deployment.md).

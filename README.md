@@ -8,7 +8,7 @@ Das unveränderte Release-JAR wird über ttyd auf EC2 im Browser gespielt. nginx
 
 - [Web-Konsole lokal und Versionsabfrage](docs/webkonsole.md)
 - [Infrastruktur, manuelle/automatische Deployments, Secrets und Rollback](docs/deployment.md)
-- [Tatsächliche Nachweise und offene AWS-Experimente](docs/webapp-nachweise.md)
+- [Prüfprotokoll der Webapp-Aufträge und AWS-Experimente](docs/webapp-nachweise.md)
 - `infra/`: OpenTofu, `frontend/`: HTML/CSS/JS, `ops/`: Runtime und Betrieb, `scripts/web/`: Release-/Deploy-Werkzeuge
 
 TicTacToe-Testprojekt für Modul 450 mit JUnit Jupiter, AssertJ, Pioneer, QuickTheories, parametrisierten Tests, JaCoCo, PITest, GitHub Actions und Dev Container. Der zusätzliche `PerfectPlayer` trifft optimale Entscheidungen und wird auf allen 4.520 erreichbaren nichtterminalen Spielstellungen geprüft.

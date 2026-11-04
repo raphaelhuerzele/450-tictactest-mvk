@@ -51,6 +51,8 @@ Eingehend ist nur HTTP-Port 80 geöffnet: Frontend, eingebettetes Terminal, Heal
 
 Nach Stop/Start bleibt die Elastic IP gleich. Die Release-Verzeichnisse und `current`-Symlinks liegen auf dem Root-EBS und bleiben erhalten; systemd startet dieselbe Backend-Version erneut. Das Frontend benötigt keinen eigenen Prozessneustart. Die vier erlaubten Verbindungen und der gruppenweite Speicherdeckel begrenzen Last, ersetzen aber keinen umfassenden Lasttest für eine 1-GB-Instanz.
 
+Beim echten Learner-Lab-Sessionwechsel blieb die Instanz zunächst gestoppt. Falls das Lab sie beim Start einer neuen Session nicht startet, muss dieselbe EC2-Instanz einmal über die AWS-Konsole oder `aws ec2 start-instances --instance-ids INSTANCE_ID` gestartet werden. Anschließend kommen Dienste und gespeicherte App-Version automatisch zurück; kein `tofu apply` und kein erneuter App-Deploy sind dafür erforderlich. AWS-Credentials für die Pipeline müssen nach dem Sessionwechsel separat erneuert werden.
+
 Outputs: `frontend_url`, `terminal_url`, `backend_version_url`, `instance_id`, `aws_region`. Diese Werte sind keine Secrets. Öffentlich ausgeliefert werden nur Frontend-Dateien und eine Konfiguration mit URLs, niemals Schlüssel, State, Pläne oder Betriebslogs. Das Lab verwendet HTTP ohne persönliche Daten; für dauerhaften produktiven Betrieb wären Domain, TLS und Zugriffsschutz vorzusehen.
 
 ## Manuelle Deployments A und B
