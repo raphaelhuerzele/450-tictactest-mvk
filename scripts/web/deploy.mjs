@@ -62,7 +62,11 @@ async function install(helper, digest) {
     try { result = json('aws', ['ssm', 'get-command-invocation', '--command-id', commandId, '--instance-id', process.env.INSTANCE_ID, '--output', 'json']); }
     catch { await sleep(2000); continue; }
     if (result.Status === 'Success') return;
-    if (['Failed', 'Cancelled', 'TimedOut', 'Cancelling'].includes(result.Status)) throw new Error(`SSM command ${commandId} failed (${result.Status}); inspect its instance log.`);
+    if (['Failed', 'Cancelled', 'TimedOut', 'Cancelling'].includes(result.Status)) {
+      console.error(result.StandardOutputContent ?? '');
+      console.error(result.StandardErrorContent ?? '');
+      throw new Error(`SSM command ${commandId} failed (${result.Status}); the previous active version is preserved unless activation had already started.`);
+    }
     await sleep(2000);
   }
   throw new Error(`SSM command ${commandId} exceeded the deadline.`);
