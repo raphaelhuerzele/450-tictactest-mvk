@@ -53,6 +53,12 @@ try {
     evidence.jvmProcesses = processes.trim().split('\n').filter(line => line.includes('tictactest-'));
     assert.equal(evidence.jvmProcesses.length, 2, 'Two tabs must have two independent Java processes');
   }
+  const third = await openGame();
+  const fourth = await openGame();
+  evidence.simultaneousGames = 4;
+  assert.ok([first, second, third, fourth].every(page => outputs.get(page).includes('(0-8)')));
+  await third.close();
+  await fourth.close();
   for (const move of ['4', '8', '2', '6']) {
     await input(first, move);
     await new Promise(resolve => setTimeout(resolve, 180));

@@ -8,6 +8,7 @@ ConditionPathExists=/opt/tictactest/current/game.jar
 Type=simple
 User=tictactest
 Group=tictactest
+Environment=LANG=C.UTF-8
 WorkingDirectory=/opt/tictactest
 ExecStart=/opt/tictactest/tools/ttyd --interface 127.0.0.1 --port 7681 --base-path /terminal --writable --check-origin --max-clients 4 -t disableReconnect=true -t disableResizeOverlay=true -t fontSize=18 -t titleFixed=TicTacTest /opt/tictactest/tools/java/bin/java -Xms16m -Xmx64m -XX:MaxMetaspaceSize=64m -XX:ReservedCodeCacheSize=32m -XX:+UseSerialGC -XX:ActiveProcessorCount=1 -jar /opt/tictactest/current/game.jar
 Restart=always
