@@ -4,6 +4,12 @@ Alle relevanten Änderungen an TicTacTest werden in dieser Datei dokumentiert. D
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-11-04
+
+### Changed
+
+- Gradle-Warnungen im Backend-Build als Zusammenfassung anzeigen, statt sie vollständig zu unterdrücken. Dieser Backend-only-Release prüft das selektive Deployment bei unverändertem Frontend.
+
 ## [1.1.1] - 2026-11-04
 
 ### Fixed
