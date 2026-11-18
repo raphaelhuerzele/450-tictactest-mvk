@@ -2,6 +2,8 @@
 
 Prüfstand: 18.11.2026. Grundlage sind die drei HTML-Aufträge, Version `261103-71bf6d91` vom 03.11.2026. Historische Cloud-Nachweise vom 04.11.2026 stehen in [webapp-nachweise.md](webapp-nachweise.md). Sie sind keine aktuelle Erreichbarkeitsprüfung.
 
+Die technische Umsetzung der drei Pflichtaufträge ist abgeschlossen und veröffentlicht. Der aktuelle erfolgreiche Deployment- und Browsernachweis ist [Lauf 44270388612](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/44270388612). Aktuelle Anwendung: <http://44.193.19.185/>. Erreichbarkeit setzt eine aktive Lab-Instanz voraus; lokale Schul-Netzfilter können den Zugriff blockieren.
+
 | Auftrag | Implementierung und Nachweise |
 | --- | --- |
 | 1: lokale Web-Konsole | ttyd startet direkt das unveränderte Release-JAR. Separates statisches Frontend, konfigurierbare URLs, HTTP-Versionen und Release-Archive sind vorhanden. Spielende, ungültige Eingabe, Neustart und getrennte JVMs sind dokumentiert. Siehe [webkonsole.md](webkonsole.md). |
@@ -18,7 +20,11 @@ Die Releases v1.1.0 und v1.1.3 wurden nacheinander lokal über `node scripts/web
 
 Der lokale vollständige Browserablauf `manual-acceptance.ps1` kann hier nicht bestehen: Der Schul-Webfilter blockiert die öffentliche IP als FortiGuard-Kategorie Unrated. Es wurde keine Ausnahme oder Umgehung aktiviert. `--verify-on-instance` prüft ausschließlich HTTP über SSM und ist ausdrücklich kein Browsernachweis.
 
-Der [GitHub-Workflow für die neue Instanz](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/44269433505) hat Installation und öffentliche HTTP-Versionsprüfung erfolgreich abgeschlossen. Der anschließende Chrome-Test scheiterte bei `page.goto` mit `net::ERR_BLOCKED_BY_CLIENT`; der gesamte Workflow ist deshalb korrekt rot. Ein neuer erfolgreicher öffentlicher Browsernachweis ist weiterhin offen. Die historischen erfolgreichen Browsernachweise vom 04.11.2026 werden dadurch nicht als neuer Test ausgegeben.
+Der erste [GitHub-Workflow für die neue Instanz](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/44269433505) hat Installation und öffentliche HTTP-Versionsprüfung erfolgreich abgeschlossen, scheiterte aber im vorinstallierten Chrome bei `page.goto` mit `net::ERR_BLOCKED_BY_CLIENT`. Der Test verwendet jetzt das mit Playwright versionierte Chromium statt des vorinstallierten Systembrowsers. Es werden keine Schutzfunktionen abgeschaltet. Fehler speichern künftig Diagnose und Screenshot.
+
+Der anschließende [Deployment-Lauf 44270388612](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/44270388612) ist vollständig erfolgreich: öffentliche HTTP-Versionsprüfungen und echtes Browser-Spiel, Frontend/Backend jeweils 1.1.3, vier gleichzeitige Sitzungen, vollständige Partie bis CROSS gewinnt, ungültige Eingabe und Neustart. Persistierte Nachweise: [Browser-JSON](evidence/cloud-20261118.json), [Screenshot](evidence/cloud-20261118.png).
+
+Der Implementierungscommit `e324730` ist nach main gepusht. [CI](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/44270386479), [Infrastrukturvalidierung](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/44270386638) und [Coverage-Veröffentlichung](https://github.com/raphaelhuerzele/450-tictactest-mvk/actions/runs/44270387429) sind erfolgreich. Der main-Push selbst hat kein Deployment ausgelöst; der genannte Deployment-Lauf wurde ausdrücklich manuell für den bestehenden Release gestartet.
 
 Die lokalen Prüfungen am 18.11.2026 waren erfolgreich: zwei Tests zur Änderungserkennung, Syntaxprüfung des PowerShell-Abnahmeablaufs, `tofu fmt -check`, `tofu validate` und `git diff --check`. Diese Prüfungen ersetzen keinen ausgeführten Cloud-Deploy.
 
