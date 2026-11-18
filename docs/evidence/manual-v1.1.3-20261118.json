@@ -1,0 +1,8 @@
+{
+  "tag": "v1.1.3",
+  "previous": "v1.1.2",
+  "backend": true,
+  "frontend": true,
+  "verification": "instance-http-via-ssm",
+  "verifiedAt": "2026-11-18T08:45:29.947Z"
+}

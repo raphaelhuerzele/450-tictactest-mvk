@@ -43,6 +43,11 @@ for (const name of names) {
 }
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function verify(url, expected) {
+  if (process.argv.includes('--verify-on-instance')) {
+    const path = url === process.env.BACKEND_VERSION_URL ? '/version' : '/frontend-version.txt';
+    await execute(['set -e', `test "$(curl --fail --silent --max-time 10 http://127.0.0.1${path})" = '${expected}'`]);
+    return;
+  }
   for (let attempt = 0; attempt < 30; attempt++) {
     try {
       const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}check=${Date.now()}`, { signal: AbortSignal.timeout(4000), cache: 'no-store' });
@@ -53,7 +58,10 @@ async function verify(url, expected) {
   throw new Error(`Version verification timed out: expected ${expected} at ${url}`);
 }
 async function install(helper, digest) {
-  const parameters = JSON.stringify({ commands: [`/usr/local/sbin/${helper} '${repository}' '${tag}' '${digest}'`], executionTimeout: ['180'] });
+  return execute(['set -e', 'cloud-init status --wait', `/usr/local/sbin/${helper} '${repository}' '${tag}' '${digest}'`]);
+}
+async function execute(commands) {
+  const parameters = JSON.stringify({ commands, executionTimeout: ['180'] });
   const sent = json('aws', ['ssm', 'send-command', '--instance-ids', process.env.INSTANCE_ID,
     '--document-name', 'AWS-RunShellScript', '--timeout-seconds', '120', '--parameters', parameters, '--output', 'json']);
   const commandId = sent.Command.CommandId;
@@ -80,5 +88,5 @@ if (selection.frontend) {
   await verify(`${process.env.FRONTEND_URL.replace(/\/$/, '')}/frontend-version.txt`, version);
 }
 mkdirSync(resolve('build/deployment'), { recursive: true });
-writeFileSync(resolve('build/deployment/result.json'), `${JSON.stringify({ tag, previous, ...selection, verifiedAt: new Date().toISOString() }, null, 2)}\n`);
-console.log('Selected public release components deployed and verified.');
+writeFileSync(resolve('build/deployment/result.json'), `${JSON.stringify({ tag, previous, ...selection, verification: process.argv.includes('--verify-on-instance') ? 'instance-http-via-ssm' : 'public-http', verifiedAt: new Date().toISOString() }, null, 2)}\n`);
+console.log('Selected release components deployed and verified.');

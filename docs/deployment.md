@@ -28,6 +28,8 @@ Das Deployment lädt nur veröffentlichte Assets, prüft SHA-256 und aktiviert d
 
 ## Infrastruktur lokal erstellen
 
+Bei einem Wechsel des AWS-Kontos muss ein eigener State verwendet werden. Am 18.11.2026 wurde für Konto `699438354439` der Workspace `lab-699438354439` angelegt; der frühere Default-State gehört zu einem anderen Konto und bleibt erhalten. Vor Plan/Apply immer STS-Konto und `tofu -chdir=infra workspace show` vergleichen. Für dieses Lab: `tofu -chdir=infra workspace select lab-699438354439`. Workspace-State-Verzeichnisse sind ebenfalls von Git ausgeschlossen. Die Subnetzauswahl berücksichtigt jetzt die Availability Zones, in denen der gewählte Instanztyp angeboten wird; das neue Lab unterstützt `t3.micro` nicht in `us-east-1e`.
+
 Voraussetzungen: aktives Lab, gültiges AWS-Profil, Default-VPC mit öffentlichen Default-Subnetzen, `LabInstanceProfile`, AWS CLI, OpenTofu >=1.10, gh und Node 22+. Für den wiederholbaren AMI-Stand wird die ID einmal aufgelöst und lokal festgehalten:
 
 ```powershell
@@ -56,6 +58,23 @@ Beim echten Learner-Lab-Sessionwechsel blieb die Instanz zunächst gestoppt. Fal
 Outputs: `frontend_url`, `terminal_url`, `backend_version_url`, `instance_id`, `aws_region`. Diese Werte sind keine Secrets. Öffentlich ausgeliefert werden nur Frontend-Dateien und eine Konfiguration mit URLs, niemals Schlüssel, State, Pläne oder Betriebslogs. Das Lab verwendet HTTP ohne persönliche Daten; für dauerhaften produktiven Betrieb wären Domain, TLS und Zugriffsschutz vorzusehen.
 
 ## Manuelle Deployments A und B
+
+Für die vollständige Abnahme unter Windows gibt es einen **lokal ausgeführten** Ablauf. Er verwendet keine GitHub-Actions-Dispatches und führt weder `apply` noch `destroy` aus. Voraussetzungen sind eine bereits mit OpenTofu eingerichtete Instanz, zwei veröffentlichte Web-Releases mit JAR/Frontend-ZIP/SHA256SUMS, gültige GitHub-/AWS-Anmeldung und Chrome. Zuerst lokal anmelden und die zusammengehörigen temporären Lab-Credentials im AWS-Profil erneuern; keine Credentials in Befehlsprotokolle oder Git übernehmen.
+
+```powershell
+gh auth login -h github.com
+aws sts get-caller-identity --profile lab
+npm install --prefix .tools/browser --no-save --package-lock=false playwright-core@1.64.1
+powershell -NoProfile -File scripts/web/manual-acceptance.ps1 -ReleaseA v1.1.0 -ReleaseB v1.1.3 -AwsProfile lab -Tofu .tools/tofu/tofu.exe -StartStoppedInstance
+```
+
+`-StartStoppedInstance` startet bei Bedarf ausschließlich die vorhandene EC2 aus dem State. Ohne diese Option bricht der Ablauf bei einer gestoppten Instanz ab. Das ist ein ausdrücklich manueller Lab-Wiederanlauf, kein automatischer Start der AWS-Lab-Session. Nach dem EC2-Boot starten nginx und der gespeicherte Spieldienst über systemd.
+
+Der Ablauf übernimmt die aktuellen Outputs direkt aus OpenTofu, wartet begrenzt auf SSM und prüft vor der ersten App-Änderung die Assets beider Releases. Anschließend deployt er A und B mit demselben lokalen Deploy-Client, prüft beide Versionen im echten Browser, vergleicht die Instanz-ID und verlangt nach jedem Deployment einen OpenTofu-Plan mit Exitcode 0. Bei einem Fehler bricht er ab; es erfolgt keine automatische Infrastrukturänderung. Ein erfolgreicher Lauf endet mit Version B. Während der Backend-Neustarts enden aktive Partien.
+
+Wenn der lokale Schul-Webfilter öffentliche HTTP-Aufrufe blockiert, kann der lokale Deploy-Client ausdrücklich mit `--verify-on-instance` aufgerufen werden. Beispiel nach Setzen der oben beschriebenen Output-Umgebungsvariablen: `node scripts/web/deploy.mjs v1.1.3 --force --verify-on-instance`. Das prüft die Versionen per HTTP auf `127.0.0.1` der EC2 über SSM und protokolliert `verification=instance-http-via-ssm`. Es ist kein öffentlicher Browsernachweis und umgeht den lokalen Webfilter nicht. GitHub Actions verwendet weiterhin die öffentliche HTTP-Prüfung und den separaten Browser-Test. Der Installer wartet vor der Aktivierung auf den Abschluss von cloud-init, da SSM bereits vorher Online melden kann.
+
+Ergebnisse werden je Lauf in `build/manual-acceptance/<Zeitstempel>/` abgelegt: Deployment-JSON, Browser-JSON/Screenshot, Plan und abschließende Zusammenfassung. Nur wenn sämtliche Prüfungen bestanden sind, entsteht `summary.json`. Geeignete Browser-Nachweise können anschließend für die Abgabe nach `docs/evidence/` übernommen werden; komplette Pläne und State bleiben außerhalb von Git. Der Ablauf selbst ist kein Beleg, dass er schon erfolgreich gegen AWS ausgeführt wurde.
 
 Die manuellen Schritte verwenden denselben geprüften Deploy-Client, werden aber lokal aufgerufen. Er lädt Assets aus GitHub und gibt über SSM den Installationsauftrag. Keine Infrastruktur wird neu erstellt:
 

@@ -7,10 +7,11 @@ import assert from 'node:assert/strict';
 
 const { chromium } = await import(pathToFileURL(resolve('.tools/browser/node_modules/playwright-core/index.mjs')));
 const browser = await chromium.launch({
-  executablePath: process.env.BROWSER_EXECUTABLE ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe',
+  ...(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE }
+    : process.platform === 'win32' ? { executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' } : {}),
   headless: true
 });
-const evidence = {};
+const evidence = { browser: browser.version(), checkedAt: new Date().toISOString() };
 const outputs = new Map();
 async function openGame() {
   const page = await browser.newPage({ viewport: { width: 1280, height: 880 } });
@@ -77,6 +78,12 @@ try {
   await second.screenshot({ path: 'build/web-evidence/browser.png', fullPage: true });
   writeFileSync('build/web-evidence/browser.json', JSON.stringify(evidence, null, 2) + '\n');
   console.log(JSON.stringify(evidence, null, 2));
+} catch (error) {
+  mkdirSync('build/web-evidence', { recursive: true });
+  writeFileSync('build/web-evidence/failure.json', JSON.stringify({ ...evidence, error: error.message }, null, 2) + '\n');
+  const page = browser.contexts().flatMap(context => context.pages())[0];
+  if (page) await page.screenshot({ path: 'build/web-evidence/failure.png', fullPage: true }).catch(() => {});
+  throw error;
 } finally {
   await browser.close();
 }

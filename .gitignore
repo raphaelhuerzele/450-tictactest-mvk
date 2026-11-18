@@ -24,6 +24,7 @@ bin/
 
 # OpenTofu state, credentials and environment-specific inputs never belong in Git.
 **/.terraform/
+**/terraform.tfstate.d/
 *.tfstate
 *.tfstate.*
 *.tfplan
