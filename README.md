@@ -2,14 +2,14 @@
 
 ## Webapp-Aufträge 324
 
-Web-App: [TicTacTest im Browser](http://44.193.19.185/) (nur während der laufenden AWS-Lab-Session erreichbar; der Schul-Webfilter kann die IP blockieren).
+Web-App: [TicTacTest im Browser](http://35.171.13.1/) (nur während der laufenden AWS-Lab-Session erreichbar; der Schul-Webfilter kann die IP blockieren).
 
 Das unveränderte Release-JAR wird über ttyd auf EC2 im Browser gespielt. nginx liefert das getrennt versionierte Frontend aus. OpenTofu provisioniert die Infrastruktur; Releases installieren nur geänderte Komponenten über SSM und geprüfte GitHub-Release-Assets. Der Lab-Zugang ist zeitlich begrenzt.
 
 - [Web-Konsole lokal und Versionsabfrage](docs/webkonsole.md)
 - [Infrastruktur, manuelle/automatische Deployments, Secrets und Rollback](docs/deployment.md)
 - [Prüfprotokoll der Webapp-Aufträge und AWS-Experimente](docs/webapp-nachweise.md)
-- [Abschlussstand und aktuelle Cloud-Abnahme vom 18.11.2026](docs/auftragsstatus.md)
+- [Abschlussstand und aktuelle Cloud-Abnahme](docs/auftragsstatus.md)
 - `infra/`: OpenTofu, `frontend/`: HTML/CSS/JS, `ops/`: Runtime und Betrieb, `scripts/web/`: Release-/Deploy-Werkzeuge
 
 TicTacToe-Testprojekt für Modul 450 mit JUnit Jupiter, AssertJ, Pioneer, QuickTheories, parametrisierten Tests, JaCoCo, PITest, GitHub Actions und Dev Container. Der zusätzliche `PerfectPlayer` trifft optimale Entscheidungen und wird auf allen 4.520 erreichbaren nichtterminalen Spielstellungen geprüft.

@@ -28,7 +28,7 @@ Das Deployment lädt nur veröffentlichte Assets, prüft SHA-256 und aktiviert d
 
 ## Infrastruktur lokal erstellen
 
-Bei einem Wechsel des AWS-Kontos muss ein eigener State verwendet werden. Am 18.11.2026 wurde für Konto `699438354439` der Workspace `lab-699438354439` angelegt; der frühere Default-State gehört zu einem anderen Konto und bleibt erhalten. Vor Plan/Apply immer STS-Konto und `tofu -chdir=infra workspace show` vergleichen. Für dieses Lab: `tofu -chdir=infra workspace select lab-699438354439`. Workspace-State-Verzeichnisse sind ebenfalls von Git ausgeschlossen. Die Subnetzauswahl berücksichtigt jetzt die Availability Zones, in denen der gewählte Instanztyp angeboten wird; das neue Lab unterstützt `t3.micro` nicht in `us-east-1e`.
+Bei einem Wechsel des AWS-Kontos muss ein eigener State verwendet werden. Seit dem Kurswechsel am 25.11.2026 ist für Konto `912178736500` der Workspace `lab-912178736500` aktiv. Die States des vorherigen Kontos `699438354439` (Workspace `lab-699438354439`) und der frühere Default-State bleiben unverändert erhalten. Vor Plan/Apply immer STS-Konto und `tofu -chdir=infra workspace show` vergleichen. Für das aktuelle Lab: `tofu -chdir=infra workspace select lab-912178736500`. Workspace-State-Verzeichnisse sind ebenfalls von Git ausgeschlossen. Die Subnetzauswahl berücksichtigt die Availability Zones, in denen der gewählte Instanztyp angeboten wird; das vorherige Lab unterstützte `t3.micro` nicht in `us-east-1e`.
 
 Voraussetzungen: aktives Lab, gültiges AWS-Profil, Default-VPC mit öffentlichen Default-Subnetzen, `LabInstanceProfile`, AWS CLI, OpenTofu >=1.10, gh und Node 22+. Für den wiederholbaren AMI-Stand wird die ID einmal aufgelöst und lokal festgehalten:
 
